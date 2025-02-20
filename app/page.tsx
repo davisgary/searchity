@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { TfiWorld } from 'react-icons/tfi';
+import Header from './components/Header';
 import Summary from './components/Summary';
 import Results from './components/Results';
 import Trends from './components/Trends';
@@ -153,7 +154,8 @@ export default function IndexPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-950 text-center text-white">
-      <div className="w-full max-w-3xl mx-auto flex flex-col items-center justify-start flex-grow px-5 py-20">
+      <Header />
+      <div className="w-full max-w-3xl mx-auto flex flex-col items-center justify-start flex-grow px-5 py-16">
         <h1 className="pb-2 font-bold tracking-tight text-3xl sm:text-4xl md:text-5xl">
           Search the Web with AI
         </h1>

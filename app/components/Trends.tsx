@@ -60,7 +60,7 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
       <p className="text-left text-xs tracking-widest text-neutral-300 mx-2">
         Trending
       </p>
-      <div className="overflow-hidden whitespace-nowrap py-2" ref={trendsContainerRef}>
+      <div className="overflow-hidden whitespace-nowrap py-3" ref={trendsContainerRef}>
         <div className="inline-block">
           {trendingSearches.map((trend, index) => (
             <span key={index} className="mx-4">
