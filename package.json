@@ -9,14 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth/pg-adapter": "^1.7.4",
     "@neondatabase/serverless": "^0.10.4",
     "ai": "^3.4.23",
     "axios": "^1.7.9",
     "form-data": "^4.0.1",
+    "google-auth-library": "^9.15.1",
     "google-trends-api": "^4.9.2",
     "next": "15.0.1",
-    "next-auth": "^5.0.0-beta.25",
     "openai": "^4.79.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

@@ -1,44 +1,54 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { SiGoogle } from "react-icons/si";
+import { useState } from 'react';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function SignIn() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleSignIn = async () => {
-    await signIn("google", { redirect: false });
+  const handleGoogleSignIn = () => {
+    const currentPath = window.location.pathname;
+    const authUrl = `/api/auth/google?returnTo=${encodeURIComponent(currentPath)}`;
+    window.location.href = authUrl;
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      setIsOpen(false);
+    }
   };
 
   return (
-    <>
+    <div className="relative">
       <button
         onClick={() => setIsOpen(true)}
-        className="text-neutral-400 transition-colors duration-300 hover:text-neutral-100"
+        className="flex items-center gap-2 px-4 py-2 bg-white text-gray-800 font-semibold rounded-full shadow-md hover:bg-gray-100 transition duration-300"
       >
-        Sign In
+        <span>Sign In</span>
       </button>
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-neutral-700 p-6 rounded-lg shadow-lg w-80 text-center mb-16">
-            <h2 className="text-xl font-bold mb-4">Sign in</h2>
-            <button
-              onClick={handleSignIn}
-              className="flex items-center gap-3 px-6 py-3 border border-gray-300 rounded-lg shadow-md bg-neutral-300 hover:bg-gray-100 transition text-gray-700 font-medium text-lg w-full justify-center"
-            >
-              <SiGoogle className="w-5 h-5 text-blue-500" />
-              Sign in with Google
-            </button>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={handleOverlayClick}
+        >
+          <div className="bg-white p-10 rounded-lg shadow-xl transform transition-all duration-300">
             <button
               onClick={() => setIsOpen(false)}
-              className="mt-4 text-neutral-200 hover:text-gray-800"
+              className="absolute top-3 right-4 text-neutral-900 hover:text-neutral-500"
             >
-              Cancel
+              ✕
+            </button>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Welcome</h2>
+            <button
+              onClick={handleGoogleSignIn}
+              className="flex items-center gap-3 px-6 py-3 bg-neutral-900 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300"
+            >
+              <FcGoogle size={28} />
+              <span>Sign in with Google</span>
             </button>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
