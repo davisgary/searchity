@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from "react";
-import { TfiWorld } from "react-icons/tfi";
+import { useState, useRef, Suspense } from "react";
 import Header from "./components/Header";
 import Summary from "./components/Summary";
 import Results from "./components/Results";
 import Trends from "./components/Trends";
 import Loading from "./components/Loading";
+import Searches from "./components/Searches";
+import SearchBar from "./components/SearchBar";
 import { useSearchParams } from "next/navigation";
 
 type SearchResult = {
@@ -25,28 +26,29 @@ type SearchSession = {
   loading: boolean;
 };
 
-export default function IndexPage() {
+interface Search {
+  query: string;
+  summary: string;
+  results: { title: string; link: string; snippet: string; image: string }[];
+  suggestions: string[];
+}
+
+interface Session {
+  id: number;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  searches: Search[];
+}
+
+function IndexContent() {
   const [searchSessions, setSearchSessions] = useState<SearchSession[]>([]);
+  const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [globalLoading, setGlobalLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const lastSearchRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef<number>(0);
   const searchParams = useSearchParams();
-  const [input, setInput] = useState(searchParams.get("query") || "");
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  useEffect(() => {
-    const query = searchParams.get("query");
-    if (query && !searchSessions.length) {
-      handleSearch(query);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (searchSessions.length > 0) {
-      lastSearchRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [searchSessions]);
+  const sessionId = searchParams.get("sessionId");
 
   const handleSearch = async (query: string) => {
     const trimmedQuery = query.trim();
@@ -55,111 +57,222 @@ export default function IndexPage() {
     setGlobalLoading(true);
     setError(null);
 
-    const newId = sessionIdRef.current;
-    sessionIdRef.current++;
+    if (sessionId && currentSession) {
+      if (currentSession.searches.length >= 15) {
+        setError("This session is full (15 searches max). Start a new one or upgrade for more!");
+        setGlobalLoading(false);
+        return;
+      }
 
-    setSearchSessions((prev) => [
-      ...prev,
-      {
-        id: newId,
+      const newSearch: Search = {
         query: trimmedQuery,
         summary: "",
         results: [],
         suggestions: [],
-        loading: true,
-      },
-    ]);
+      };
 
-    try {
-      const response = await fetch("/api/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmedQuery }),
-      });
-      if (!response.ok) throw new Error("Failed to fetch search results");
+      setCurrentSession((prev) =>
+        prev ? { ...prev, searches: [...prev.searches, newSearch] } : null
+      );
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("Readable stream not supported in this browser.");
+      try {
+        console.log("Starting search for query:", trimmedQuery);
+        const response = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: trimmedQuery }),
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Search API failed: ${errorText}`);
+        }
 
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let summary = "";
-      let finalResults: SearchResult[] = [];
-      let finalSuggestions: string[] = [];
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("Readable stream not supported");
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let summary = "";
+        let finalResults: any[] = [];
+        let finalSuggestions: string[] = [];
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          try {
-            const parsed = JSON.parse(line);
-            if (parsed.token) {
-              summary += parsed.token;
-              setSearchSessions((prevSessions) =>
-                prevSessions.map((session) =>
-                  session.id === newId ? { ...session, summary } : session
-                )
-              );
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const parsed = JSON.parse(line);
+              if (parsed.token) {
+                summary += parsed.token;
+                setCurrentSession((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        searches: prev.searches.map((s) =>
+                          s.query === trimmedQuery ? { ...s, summary } : s
+                        ),
+                      }
+                    : null
+                );
+              }
+              if (parsed.final) {
+                finalResults = parsed.searchResults || [];
+                finalSuggestions = parsed.suggestions || [];
+                console.log("Search completed:", { finalResults, finalSuggestions });
+                setCurrentSession((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        searches: prev.searches.map((s) =>
+                          s.query === trimmedQuery
+                            ? { ...s, summary, results: finalResults, suggestions: finalSuggestions }
+                            : s
+                        ),
+                      }
+                    : null
+                );
+              }
+            } catch (err) {
+              console.error("Error parsing JSON line:", err, "Line:", line);
             }
-            if (parsed.final) {
-              finalResults = parsed.searchResults || [];
-              finalSuggestions = parsed.suggestions || [];
-            }
-          } catch (err) {
-            console.error("Error parsing JSON line:", err, line);
           }
         }
+
+        console.log("Saving to session:", currentSession.id, { query: trimmedQuery, summary, finalResults, finalSuggestions });
+        const addResponse = await fetch("/api/add-to-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId: currentSession.id,
+            query: trimmedQuery,
+            summary,
+            results: finalResults,
+            suggestions: finalSuggestions,
+          }),
+        });
+        const addData = await addResponse.json();
+        console.log("Database sync response:", addData);
+
+        if (!addData.success) {
+          if (addData.limitReached) {
+            setError(addData.message);
+            setCurrentSession((prev) =>
+              prev
+                ? { ...prev, searches: prev.searches.filter((s) => s.query !== trimmedQuery) }
+                : null
+            );
+          } else {
+            throw new Error(`Add-to-session failed: ${addData.error || "Unknown error"}`);
+          }
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+        setError(error instanceof Error ? error.message : "Search failed");
+        setCurrentSession((prev) =>
+          prev
+            ? { ...prev, searches: prev.searches.filter((s) => s.query !== trimmedQuery) }
+            : null
+        );
+      } finally {
+        setGlobalLoading(false);
       }
+    } else {
+      const newId = sessionIdRef.current;
+      sessionIdRef.current++;
 
-      setSearchSessions((prevSessions) =>
-        prevSessions.map((session) =>
-          session.id === newId
-            ? {
-                ...session,
-                summary,
-                results: finalResults,
-                suggestions: finalSuggestions,
-                loading: false,
+      setSearchSessions((prev) => [
+        ...prev,
+        {
+          id: newId,
+          query: trimmedQuery,
+          summary: "",
+          results: [],
+          suggestions: [],
+          loading: true,
+        },
+      ]);
+
+      try {
+        console.log("Starting live search for query:", trimmedQuery);
+        const response = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: trimmedQuery }),
+        });
+        if (!response.ok) throw new Error("Failed to fetch search results");
+
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("Readable stream not supported in this browser.");
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let summary = "";
+        let finalResults: SearchResult[] = [];
+        let finalSuggestions: string[] = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const parsed = JSON.parse(line);
+              if (parsed.token) {
+                summary += parsed.token;
+                setSearchSessions((prevSessions) =>
+                  prevSessions.map((session) =>
+                    session.id === newId ? { ...session, summary } : session
+                  )
+                );
               }
-            : session
-        )
-      );
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
-      setError(errorMessage);
-      setSearchSessions((prevSessions) =>
-        prevSessions.map((session) =>
-          session.id === newId ? { ...session, loading: false } : session
-        )
-      );
-    } finally {
-      setGlobalLoading(false);
+              if (parsed.final) {
+                finalResults = parsed.searchResults || [];
+                finalSuggestions = parsed.suggestions || [];
+              }
+            } catch (err) {
+              console.error("Error parsing JSON line:", err, line);
+            }
+          }
+        }
+
+        setSearchSessions((prevSessions) =>
+          prevSessions.map((session) =>
+            session.id === newId
+              ? {
+                  ...session,
+                  summary,
+                  results: finalResults,
+                  suggestions: finalSuggestions,
+                  loading: false,
+                }
+              : session
+          )
+        );
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "An unexpected error occurred";
+        setError(errorMessage);
+        setSearchSessions((prevSessions) =>
+          prevSessions.map((session) =>
+            session.id === newId ? { ...session, loading: false } : session
+          )
+        );
+      } finally {
+        setGlobalLoading(false);
+      }
     }
   };
-
-  const adjustTextareaHeight = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  };
-
-  useEffect(() => {
-    adjustTextareaHeight();
-  }, [input]);
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "65px";
-    }
-  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-950 text-center text-white">
@@ -168,45 +281,16 @@ export default function IndexPage() {
         <h1 className="pb-2 font-bold tracking-tight text-3xl sm:text-4xl md:text-5xl">
           Search the Web with AI
         </h1>
-        <div className="sticky top-0 z-10 bg-neutral-950 w-full pt-4">
-          <div className="w-full relative flex items-center bg-neutral-900 rounded-2xl border border-white/20 px-5 pr-3">
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSearch(input);
-                }
-              }}
-              placeholder="Enter your search..."
-              className="w-full bg-neutral-900 text-lg font-light text-white placeholder-neutral-400 focus:outline-none resize-none overflow-hidden py-4 pr-2"
-              rows={1}
-              style={{ minHeight: "65px", maxHeight: "200px", paddingTop: "19px", paddingBottom: "18px" }}
-            />
-            <button
-              onClick={() => handleSearch(input)}
-              disabled={globalLoading}
-              className="bg-neutral-950 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-              aria-label="Search"
-            >
-              <TfiWorld
-                className={`w-6 h-6 ${globalLoading ? "animate-spin" : ""} ${input ? "opacity-100" : "opacity-60"}`}
-              />
-            </button>
-          </div>
-        </div>
+        <SearchBar handleSearch={handleSearch} isLoading={globalLoading} />
         <div className="w-full overflow-hidden">
           <Trends handleSearch={handleSearch} />
         </div>
         {error && <p className="text-red-500 mt-4">{error}</p>}
-        {searchSessions.map((session, index) => {
-          const isLastSession = index === searchSessions.length - 1;
-          return (
+        {!sessionId ? (
+          searchSessions.map((session, index) => (
             <div
               key={session.id}
-              ref={isLastSession ? lastSearchRef : undefined}
+              id={`live-search-${index}`}
               className="mt-4 w-full text-left"
             >
               <Summary summary={session.summary} />
@@ -241,10 +325,26 @@ export default function IndexPage() {
                 </div>
               )}
             </div>
-          );
-        })}
+          ))
+        ) : (
+          <Searches
+            sessionId={sessionId}
+            isLoading={globalLoading}
+            currentSession={currentSession}
+            setCurrentSession={setCurrentSession}
+            handleSearch={handleSearch}
+          />
+        )}
       </div>
       <footer className="py-4 text-xs">AI can make mistakes. Check your results.</footer>
     </div>
+  );
+}
+
+export default function IndexPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <IndexContent />
+    </Suspense>
   );
 }
