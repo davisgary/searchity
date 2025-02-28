@@ -8,7 +8,7 @@ Search the web with AI
 3. Install the project's dependencies `npm install`
 4. Run the dev server `npm run dev`
 
-Your site will be running at <http://localhost:3000>
+The site will be running at <http://localhost:3000>
 
 ## Tech Stack
 
@@ -16,5 +16,6 @@ Your site will be running at <http://localhost:3000>
 - Tailwind v3
 - OpenAI gpt-4o-mini
 - Google Custom Search
-- Google Trends
-- Bing v7
+- Google Cloud BigQuery
+- Google Auth
+- Neon db

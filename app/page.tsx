@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { TfiWorld } from 'react-icons/tfi';
-import Header from './components/Header';
-import Summary from './components/Summary';
-import Results from './components/Results';
-import Trends from './components/Trends';
-import Loading from './components/Loading';
+import { useState, useRef, useEffect } from "react";
+import { TfiWorld } from "react-icons/tfi";
+import Header from "./components/Header";
+import Summary from "./components/Summary";
+import Results from "./components/Results";
+import Trends from "./components/Trends";
+import Loading from "./components/Loading";
+import { useSearchParams } from "next/navigation";
 
 type SearchResult = {
   title: string;
@@ -30,12 +31,20 @@ export default function IndexPage() {
   const [error, setError] = useState<string | null>(null);
   const lastSearchRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef<number>(0);
-  const [input, setInput] = useState('');
+  const searchParams = useSearchParams();
+  const [input, setInput] = useState(searchParams.get("query") || "");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
+    const query = searchParams.get("query");
+    if (query && !searchSessions.length) {
+      handleSearch(query);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     if (searchSessions.length > 0) {
-      lastSearchRef.current?.scrollIntoView({ behavior: 'smooth' });
+      lastSearchRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [searchSessions]);
 
@@ -54,7 +63,7 @@ export default function IndexPage() {
       {
         id: newId,
         query: trimmedQuery,
-        summary: '',
+        summary: "",
         results: [],
         suggestions: [],
         loading: true,
@@ -62,19 +71,19 @@ export default function IndexPage() {
     ]);
 
     try {
-      const response = await fetch('/api/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: trimmedQuery }),
       });
-      if (!response.ok) throw new Error('Failed to fetch search results');
+      if (!response.ok) throw new Error("Failed to fetch search results");
 
       const reader = response.body?.getReader();
-      if (!reader) throw new Error('Readable stream not supported in this browser.');
+      if (!reader) throw new Error("Readable stream not supported in this browser.");
 
       const decoder = new TextDecoder();
-      let buffer = '';
-      let summary = '';
+      let buffer = "";
+      let summary = "";
       let finalResults: SearchResult[] = [];
       let finalSuggestions: string[] = [];
 
@@ -83,8 +92,8 @@ export default function IndexPage() {
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
 
         for (const line of lines) {
           if (!line.trim()) continue;
@@ -103,7 +112,7 @@ export default function IndexPage() {
               finalSuggestions = parsed.suggestions || [];
             }
           } catch (err) {
-            console.error('Error parsing JSON line:', err, line);
+            console.error("Error parsing JSON line:", err, line);
           }
         }
       }
@@ -123,7 +132,7 @@ export default function IndexPage() {
       );
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : 'An unexpected error occurred';
+        err instanceof Error ? err.message : "An unexpected error occurred";
       setError(errorMessage);
       setSearchSessions((prevSessions) =>
         prevSessions.map((session) =>
@@ -137,7 +146,7 @@ export default function IndexPage() {
 
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   };
@@ -148,7 +157,7 @@ export default function IndexPage() {
 
   useEffect(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = '65px';
+      textareaRef.current.style.height = "65px";
     }
   }, []);
 
@@ -161,12 +170,12 @@ export default function IndexPage() {
         </h1>
         <div className="sticky top-0 z-10 bg-neutral-950 w-full pt-4">
           <div className="w-full relative flex items-center bg-neutral-900 rounded-2xl border border-white/20 px-5 pr-3">
-          <textarea
+            <textarea
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
+                if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleSearch(input);
                 }
@@ -174,7 +183,7 @@ export default function IndexPage() {
               placeholder="Enter your search..."
               className="w-full bg-neutral-900 text-lg font-light text-white placeholder-neutral-400 focus:outline-none resize-none overflow-hidden py-4 pr-2"
               rows={1}
-              style={{ minHeight: '65px', maxHeight: '200px', paddingTop: '19px', paddingBottom: '18px', }}
+              style={{ minHeight: "65px", maxHeight: "200px", paddingTop: "19px", paddingBottom: "18px" }}
             />
             <button
               onClick={() => handleSearch(input)}
@@ -182,7 +191,9 @@ export default function IndexPage() {
               className="bg-neutral-950 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
               aria-label="Search"
             >
-              <TfiWorld className={`w-6 h-6 ${globalLoading ? 'animate-spin' : ''} ${input ? 'opacity-100' : 'opacity-60'}`}  />
+              <TfiWorld
+                className={`w-6 h-6 ${globalLoading ? "animate-spin" : ""} ${input ? "opacity-100" : "opacity-60"}`}
+              />
             </button>
           </div>
         </div>
@@ -202,33 +213,33 @@ export default function IndexPage() {
               <Results results={session.results} />
               {(session.summary || session.results.length > 0) && (
                 <p className="my-4">
-                  Search for "{session.query.replace(/^\d+\.\s*/, '').replace(/"/g, '')}"
+                  Search for "{session.query.replace(/^\d+\.\s*/, "").replace(/"/g, "")}"
                 </p>
               )}
               {session.loading && <Loading isLoading={session.loading} />}
               {session.suggestions.length > 0 && (
-              <div>
-                <h4 className="text-lg font-medium">Follow-Up Suggestions</h4>
-                <ul className="text-left mt-2 space-y-1">
-                  {session.suggestions.slice(0, 5).map((suggestion, i) => {
-                    const sanitizedSuggestion = suggestion.replace(/^[-\s]+/, '').replace(/"/g, '').trim();
-                    return (
-                      <li key={i}>
-                        <button
-                          onClick={() => {
-                            console.log('Suggestion clicked:', sanitizedSuggestion);
-                            handleSearch(sanitizedSuggestion);
-                          }}
-                          className="text-left w-full text-neutral-400 hover:underline"
-                        >
-                          {sanitizedSuggestion}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
+                <div>
+                  <h4 className="text-lg font-medium">Follow-Up Suggestions</h4>
+                  <ul className="text-left mt-2 space-y-1">
+                    {session.suggestions.slice(0, 5).map((suggestion, i) => {
+                      const sanitizedSuggestion = suggestion
+                        .replace(/^[-\s]+/, "")
+                        .replace(/"/g, "")
+                        .trim();
+                      return (
+                        <li key={i}>
+                          <button
+                            onClick={() => handleSearch(sanitizedSuggestion)}
+                            className="text-left w-full text-neutral-400 hover:underline"
+                          >
+                            {sanitizedSuggestion}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
             </div>
           );
         })}

@@ -11,6 +11,12 @@ export default function Header() {
         </Link>
         <nav className="flex space-x-10 text-sm font-semibold">
           <SignIn />
+          <Link
+            href="/searches"
+            className="text-neutral-400 transition-colors duration-300 hover:text-neutral-100 py-2"
+          >
+            Searches
+          </Link>
         </nav>
       </header>
     );
