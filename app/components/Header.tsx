@@ -35,6 +35,7 @@ export default function Header() {
         setSessions(data.sessions);
       } catch (error) {
         console.error("Error fetching sessions in Header:", error);
+        setSessions([]);
       }
     }
     fetchSessions();
@@ -72,7 +73,7 @@ export default function Header() {
           <div className="relative bg-neutral-800 rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">Your Searches</h2>
             {sessions.length === 0 ? (
-              <p className="text-neutral-400">No search found.</p>
+              <p className="text-neutral-400">No searches found. Log in to see your past searches.</p>
             ) : (
               <ul className="space-y-2">
                 {sessions.map((session) => (

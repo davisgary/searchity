@@ -6,20 +6,22 @@ const db = neon(process.env.DATABASE_URL!);
 export async function POST(req: NextRequest) {
   try {
     const { sessionId, query, summary = "", results = [], suggestions = [] } = await req.json();
-    if (!sessionId || !query) {
-      return NextResponse.json({ error: "Missing sessionId or query" }, { status: 400 });
+    const userId = req.cookies.get("userId")?.value;
+
+    if (!sessionId || !query || !userId) {
+      return NextResponse.json({ error: "Missing sessionId, query, or userId" }, { status: 400 });
     }
 
     const sessionResult = await db(
-      'SELECT searches FROM search_sessions WHERE id = $1',
-      [sessionId]
+      'SELECT searches FROM search_sessions WHERE id = $1 AND user_id = $2',
+      [sessionId, userId]
     );
     if (!sessionResult.length) {
-      return NextResponse.json({ error: "Session not found" }, { status: 404 });
+      return NextResponse.json({ error: "Session not found or not owned by user" }, { status: 404 });
     }
 
     const currentSearches = sessionResult[0].searches;
-    const MAX_SEARCHES = 12;
+    const MAX_SEARCHES = 15;
 
     console.log("Current searches count:", currentSearches.length, "Max:", MAX_SEARCHES);
     if (currentSearches.length >= MAX_SEARCHES) {
@@ -27,7 +29,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: false,
         limitReached: true,
-        message: "You've reached your limit on this thread. Start a new one or upgrade for more!",
+        message: "This session is full (15 searches max). Start a new one or upgrade for more!",
       }, { status: 200 });
     }
 
@@ -41,8 +43,8 @@ export async function POST(req: NextRequest) {
 
     console.log("Updating session with new search:", newSearch);
     await db(
-      'UPDATE search_sessions SET searches = $1, updated_at = NOW() WHERE id = $2',
-      [JSON.stringify(currentSearches), sessionId]
+      'UPDATE search_sessions SET searches = $1, updated_at = NOW() WHERE id = $2 AND user_id = $3',
+      [JSON.stringify(currentSearches), sessionId, userId]
     );
 
     return NextResponse.json({ success: true, updatedSearches: currentSearches });

@@ -1,12 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 
 const db = neon(process.env.DATABASE_URL!);
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const userId = req.cookies.get("userId")?.value;
+    if (!userId) {
+      return NextResponse.json({ sessions: [] }, { status: 200 });
+    }
+
     const sessions = await db(
-      'SELECT id, user_id, created_at, updated_at, searches FROM search_sessions ORDER BY updated_at DESC'
+      'SELECT id, user_id, created_at, updated_at, searches FROM search_sessions WHERE user_id = $1 ORDER BY updated_at DESC',
+      [userId]
     );
     const formattedSessions = (sessions as any[]).map((session) => ({
       ...session,
