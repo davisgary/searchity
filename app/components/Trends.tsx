@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+type Trend = {
+  term: string;
+};
+
 type TrendsProps = {
   handleSearch: (query: string) => void;
 };
 
 const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
-  const [trendingSearches, setTrendingSearches] = useState<string[]>([]);
+  const [trendingSearches, setTrendingSearches] = useState<Trend[]>([]);
   const trendsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,7 +26,7 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
           throw new Error('Failed to fetch trending searches');
         }
 
-        const data: { trends: string[] } = await response.json();
+        const data: { trends: Trend[] } = await response.json();
         setTrendingSearches(data.trends || []);
       } catch (err) {
         console.error('Error fetching trending searches:', err);
@@ -60,12 +64,15 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
       <p className="text-left text-xs tracking-widest text-neutral-300 mx-2">
         Trending
       </p>
-      <div className="overflow-hidden whitespace-nowrap py-3" ref={trendsContainerRef}>
+      <div className="overflow-hidden whitespace-nowrap py-2" ref={trendsContainerRef}>
         <div className="inline-block">
           {trendingSearches.map((trend, index) => (
             <span key={index} className="mx-4">
-              <button onClick={() => handleSearch(trend)} className="text-normal text-neutral-400 rounded-2xl border border-white/20 px-3 focus:outline-none focus:ring-0 active:bg-transparent transition-all duration-300 hover:scale-105">
-                {trend}
+              <button
+                onClick={() => handleSearch(trend.term)}
+                className="text-normal text-neutral-400 rounded-2xl border border-white/20 px-3 focus:outline-none focus:ring-0 active:bg-transparent transition-all duration-300 hover:scale-105"
+              >
+                {trend.term}
               </button>
             </span>
           ))}

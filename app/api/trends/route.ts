@@ -1,23 +1,35 @@
 import { NextResponse } from 'next/server';
+import { BigQuery } from '@google-cloud/bigquery';
+import { Buffer } from 'buffer';
 
-const googleTrends: any = require('google-trends-api');
+const bigquery = new BigQuery({
+  credentials: JSON.parse(Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS!, 'base64').toString('utf-8')),
+});
 
 export async function GET() {
   try {
-    console.log('Fetching Google Trends data...');
+    console.log('Fetching latest Google Trends data from BigQuery...');
 
-    const trendsData = await googleTrends.dailyTrends({
-      geo: 'US',
-    });
+    const query = `
+      SELECT
+        term,
+        ARRAY_AGG(STRUCT(rank, week) ORDER BY week DESC LIMIT 1) x
+      FROM
+        \`bigquery-public-data.google_trends.top_terms\`
+      WHERE
+        refresh_date = 
+          (SELECT MAX(refresh_date) FROM \`bigquery-public-data.google_trends.top_terms\`)
+      GROUP BY
+        term
+      ORDER BY
+        (SELECT rank FROM UNNEST(x))
+    `;
 
-    console.log('Google Trends data fetched:', trendsData);
+    const [rows] = await bigquery.query(query);
 
-    const parsedData = JSON.parse(trendsData);
-    const trends = parsedData.default.trendingSearchesDays.flatMap(
-      (day: any) => day.trendingSearches.map((search: any) => search.title.query)
-    );
-
-    console.log('Parsed trends:', trends);
+    const trends = rows.map((row: any) => ({
+      term: row.term,
+    }));
 
     return NextResponse.json({ trends });
   } catch (error) {

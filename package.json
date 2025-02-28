@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google-cloud/bigquery": "^7.9.2",
     "@neondatabase/serverless": "^0.10.4",
     "ai": "^3.4.23",
     "axios": "^1.7.9",

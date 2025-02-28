@@ -187,7 +187,7 @@ export default function IndexPage() {
           </div>
         </div>
         <div className="w-full overflow-hidden">
-
+          <Trends handleSearch={handleSearch} />
         </div>
         {error && <p className="text-red-500 mt-4">{error}</p>}
         {searchSessions.map((session, index) => {

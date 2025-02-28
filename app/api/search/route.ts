@@ -63,17 +63,13 @@ export async function POST(req: NextRequest) {
     const { message } = await req.json();
     if (!message) throw new Error("Missing message in request.");
 
-    const { GOOGLE_API_KEY, CUSTOM_SEARCH_ENGINE_ID, BING_API_KEY } = process.env;
-    if (!GOOGLE_API_KEY || !CUSTOM_SEARCH_ENGINE_ID || !BING_API_KEY) throw new Error("Missing one or more API keys.");
+    const { GOOGLE_API_KEY, CUSTOM_SEARCH_ENGINE_ID } = process.env;
+    if (!GOOGLE_API_KEY || !CUSTOM_SEARCH_ENGINE_ID) throw new Error("Missing one or more API keys.");
 
     const searchEngines = [
       {
         url: `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${CUSTOM_SEARCH_ENGINE_ID}&q=${encodeURIComponent(message)}&sort=date&fields=items(title,link,snippet,pagemap(cse_image),pagemap(metatags))&num=5`,
         headers: {},
-      },
-      {
-        url: `https://api.bing.microsoft.com/v7.0/search?q=${encodeURIComponent(message)}&$select=name,url,snippet,image,webPages&count=3`,
-        headers: { "Ocp-Apim-Subscription-Key": BING_API_KEY },
       },
     ];
 
@@ -81,7 +77,7 @@ export async function POST(req: NextRequest) {
     if (responses.some(res => !res?.ok)) throw new Error("Failed to fetch search results.");
 
     const validResponses = responses.filter((res): res is Response => res !== null);
-    const [googleData, bingData] = await Promise.all(validResponses.map(res => res.json()));
+    const [googleData] = await Promise.all(validResponses.map(res => res.json()));
     
     let searchResults = [
       ...(googleData.items || []).map((item: any) => ({
@@ -91,15 +87,7 @@ export async function POST(req: NextRequest) {
         image: item.pagemap?.cse_image?.[0]?.src || null,
         source: "Google",
         date: item.pagemap?.metatags?.[0]?.["article:published_time"] || null,
-      })),
-      ...(bingData.webPages?.value || []).map((item: any) => ({
-        title: item.name,
-        snippet: item.snippet,
-        link: item.url,
-        image: item.image?.thumbnail?.contentUrl || null,
-        source: "Bing",
-        date: item.dateLastCrawled || null,
-      })),
+      }))
     ];
     
     const seenLinks = new Set();
