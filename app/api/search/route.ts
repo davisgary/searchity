@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
 
     const systemMessage = searchResults.some((item) => item.snippet.includes("(Currently happening)"))
       ? "Summarize the following search results, highlighting the ongoing event if applicable."
-      : "Summarize the following search results. If recent news is available, highlight it. Otherwise, provide a general summary. Start with an intro, then two to three bullet points, and conclude with a remark.";
+      : "Summarize the following search results, ensuring the response directly addresses the user's query: '" + message + "'. Focus on answering what the user asked, using relevant details from the results. Start with a brief intro, then two to three key points, and end with a concise remark.";
 
     console.log("Starting OpenAI stream...");
     const streamCompletion = await openai.chat.completions.create({
@@ -139,7 +139,6 @@ export async function POST(req: NextRequest) {
       ],
     });
 
-    // Collect summary and stream in one pass
     let summary = "";
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
@@ -173,7 +172,6 @@ export async function POST(req: NextRequest) {
           });
           const suggestions = suggestionsResponse.choices[0]?.message?.content?.split("\n").map(s => s.trim().replace(/^\d+\.\s*/, "")) || [];
 
-          // Session Storage
           const newSearchEntry = {
             query: message,
             timestamp: new Date().toISOString(),
