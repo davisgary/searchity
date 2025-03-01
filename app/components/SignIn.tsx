@@ -3,7 +3,12 @@
 import { useState } from 'react';
 import { FcGoogle } from 'react-icons/fc';
 
-export default function SignIn() {
+interface SignInProps {
+  isSignedIn: boolean;
+  onSignOut: () => Promise<void>;
+}
+
+export default function SignIn({ isSignedIn, onSignOut }: SignInProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleGoogleSignIn = () => {
@@ -18,13 +23,18 @@ export default function SignIn() {
     }
   };
 
+  const handleSignOutClick = async () => {
+    await onSignOut();
+    setIsOpen(false);
+  };
+
   return (
     <div className="relative">
       <button
         onClick={() => setIsOpen(true)}
         className="flex items-center gap-2 px-4 py-2 bg-white text-gray-800 font-semibold rounded-full shadow-md hover:bg-gray-100 transition duration-300"
       >
-        <span>Sign In</span>
+        <span>{isSignedIn ? 'Sign Out' : 'Sign In'}</span>
       </button>
       {isOpen && (
         <div
@@ -38,14 +48,25 @@ export default function SignIn() {
             >
               ✕
             </button>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Welcome</h2>
-            <button
-              onClick={handleGoogleSignIn}
-              className="flex items-center gap-3 px-6 py-3 bg-neutral-900 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300"
-            >
-              <FcGoogle size={28} />
-              <span>Sign in with Google</span>
-            </button>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              {isSignedIn ? 'Sign Out' : 'Welcome'}
+            </h2>
+            {isSignedIn ? (
+              <button
+                onClick={handleSignOutClick}
+                className="flex items-center gap-3 px-6 py-3 bg-neutral-900 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300"
+              >
+                <span>Sign Out</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleGoogleSignIn}
+                className="flex items-center gap-3 px-6 py-3 bg-neutral-900 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300"
+              >
+                <FcGoogle size={28} />
+                <span>Sign in with Google</span>
+              </button>
+            )}
           </div>
         </div>
       )}
