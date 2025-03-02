@@ -87,7 +87,7 @@ export default function Header() {
         <TfiWorld className="w-8 h-8 text-white" />
         <span className="text-white text-xl font-bold">AI Search</span>
       </Link>
-      <nav className="flex space-x-10 text-sm font-semibold">
+      <nav className="flex space-x-6 text-sm font-semibold">
         {isSignedIn && (
           <>
             <button
@@ -103,9 +103,26 @@ export default function Header() {
                   onClick={toggleSessions}
                 ></div>
                 <div className="relative bg-neutral-800 rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
-                  <h2 className="text-xl font-semibold mb-4">Your Searches</h2>
+                  {sessions.length > 0 && (
+                    <>
+                      <Link 
+                        href="/" 
+                        className="block mb-4 text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-300"
+                        onClick={() => setShowSessions(false)}
+                      >
+                        Create New Search
+                      </Link>
+                      <h2 className="text-xl font-semibold mb-2">Searches</h2>
+                    </>
+                  )}
                   {sessions.length === 0 ? (
-                    <p className="text-neutral-400">No searches found.</p>
+                    <Link 
+                      href="/" 
+                      className="text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-300"
+                      onClick={() => setShowSessions(false)}
+                    >
+                      Creat your first search
+                    </Link>
                   ) : (
                     <ul className="space-y-2">
                       {sessions.map((session) => (
