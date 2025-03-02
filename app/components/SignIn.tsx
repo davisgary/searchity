@@ -32,7 +32,7 @@ export default function SignIn({ isSignedIn, onSignOut }: SignInProps) {
     <div className="relative">
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 bg-white text-gray-800 font-semibold rounded-full shadow-md hover:bg-gray-100 transition duration-300"
+        className="flex items-center gap-2 px-4 py-2 bg-neutral-100 text-gray-800 font-semibold rounded-full transition duration-300 hover:bg-neutral-300"
       >
         <span>{isSignedIn ? 'Sign Out' : 'Sign In'}</span>
       </button>

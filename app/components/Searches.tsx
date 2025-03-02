@@ -73,7 +73,7 @@ export default function Searches({
   }, [currentSession]);
 
   if (!currentSession) {
-    return <p className="mt-4 text-neutral-400">Select a previous search</p>;
+    return null;
   }
 
   return (

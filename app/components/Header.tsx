@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { TfiWorld } from 'react-icons/tfi';
+import { MdOutlineManageSearch } from 'react-icons/md';
 import Link from 'next/link';
 import SignIn from './SignIn';
 
@@ -71,10 +72,10 @@ export default function Header() {
       const response = await fetch("/api/auth/signout", {
         method: 'POST',
       });
-      if (response.ok) {
-        setIsSignedIn(false);
-        setSessions([]);
-      }
+      if (!response.ok) throw new Error("Sign out failed");
+      setIsSignedIn(false);
+      setSessions([]);
+      window.location.href = '/';
     } catch (error) {
       console.error('Sign out error:', error);
     }
@@ -91,9 +92,9 @@ export default function Header() {
           <>
             <button
               onClick={toggleSessions}
-              className="bg-neutral-900 text-white px-4 py-2 rounded hover:bg-neutral-800"
+              className="text-white w-10 h-9 rounded-full transition-all duration-300 hover:bg-neutral-800 flex items-center justify-center"
             >
-              Searches
+              <MdOutlineManageSearch size={26} />
             </button>
             {showSessions && (
               <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -110,7 +111,7 @@ export default function Header() {
                       {sessions.map((session) => (
                         <li
                           key={session.id}
-                          className="cursor-pointer p-2 rounded hover:bg-neutral-600"
+                          className="text-left cursor-pointer p-2 rounded transition-all duration-300 hover:bg-neutral-600"
                           onClick={() => handleSessionClick(session.id)}
                         >
                           <span className="text-lg font-semibold">
