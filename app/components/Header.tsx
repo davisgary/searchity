@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { TfiWorld } from 'react-icons/tfi';
 import { MdOutlineManageSearch } from 'react-icons/md';
+import { IoSearch } from "react-icons/io5";
 import Link from 'next/link';
 import SignIn from './SignIn';
 
@@ -102,15 +103,16 @@ export default function Header() {
                   className="absolute inset-0 bg-black opacity-50"
                   onClick={toggleSessions}
                 ></div>
-                <div className="relative bg-neutral-800 rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+                <div className="relative bg-neutral-800 rounded-lg p-6 w-full max-w-xl max-h-[80vh] overflow-y-auto">
                   {sessions.length > 0 && (
                     <>
                       <Link 
                         href="/" 
-                        className="block mb-4 text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-300"
+                        className="flex items-center space-x-2 mb-5 text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-300"
                         onClick={() => setShowSessions(false)}
                       >
-                        Create New Search
+                        <span className="text-white text-lg font-normal">Create New Search</span>
+                        <IoSearch className="text-white" />
                       </Link>
                       <h2 className="text-xl font-semibold mb-2">Searches</h2>
                     </>
@@ -118,10 +120,11 @@ export default function Header() {
                   {sessions.length === 0 ? (
                     <Link 
                       href="/" 
-                      className="text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-300"
+                      className="flex items-center space-x-2 mb-4 text-center text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-300"
                       onClick={() => setShowSessions(false)}
                     >
-                      Creat your first search
+                      <span className="text-white text-lg font-normal">Create your first search</span>
+                      <IoSearch className="text-white" />
                     </Link>
                   ) : (
                     <ul className="space-y-2">
@@ -131,7 +134,7 @@ export default function Header() {
                           className="text-left cursor-pointer p-2 rounded transition-all duration-300 hover:bg-neutral-600"
                           onClick={() => handleSessionClick(session.id)}
                         >
-                          <span className="text-lg font-semibold">
+                          <span className="text-lg font-normal">
                             {session.searches[0]?.query.replace(/^\d+\.\s*/, "").replace(/"/g, "") || "Empty Session"}
                           </span>
                         </li>

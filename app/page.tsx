@@ -8,7 +8,7 @@ import Trends from "./components/Trends";
 import Loading from "./components/Loading";
 import Searches from "./components/Searches";
 import SearchBar from "./components/SearchBar";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 type SearchResult = {
   title: string;
@@ -48,6 +48,7 @@ function IndexContent() {
   const [error, setError] = useState<string | null>(null);
   const sessionIdRef = useRef<number>(0);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const sessionId = searchParams.get("sessionId");
 
   const handleSearch = async (query: string) => {
@@ -170,6 +171,16 @@ function IndexContent() {
           } else {
             throw new Error(`Add-to-session failed: ${addData.error || "Unknown error"}`);
           }
+        } else if (addData.isNewSession) {
+          router.push(`/?sessionId=${addData.sessionId}`);
+          const sessionResponse = await fetch("/api/sessions");
+          const sessionData = await sessionResponse.json();
+          const newSession = sessionData.sessions.find((s: any) => s.id === parseInt(addData.sessionId));
+          setCurrentSession(newSession);
+        } else {
+          setCurrentSession((prev) =>
+            prev ? { ...prev, searches: addData.updatedSearches } : null
+          );
         }
       } catch (error) {
         console.error("Search error:", error);
@@ -259,6 +270,26 @@ function IndexContent() {
               : session
           )
         );
+
+        const addResponse = await fetch("/api/add-to-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId: null,
+            query: trimmedQuery,
+            summary,
+            results: finalResults,
+            suggestions: finalSuggestions,
+          }),
+        });
+        const addData = await addResponse.json();
+        if (addData.success) {
+          router.push(`/?sessionId=${addData.sessionId}`);
+          const sessionResponse = await fetch("/api/sessions");
+          const sessionData = await sessionResponse.json();
+          const newSession = sessionData.sessions.find((s: any) => s.id === parseInt(addData.sessionId));
+          setCurrentSession(newSession);
+        }
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "An unexpected error occurred";
@@ -343,7 +374,7 @@ function IndexContent() {
 
 export default function IndexPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <IndexContent />
     </Suspense>
   );
