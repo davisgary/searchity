@@ -27,6 +27,7 @@ export default function Header() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [showSessions, setShowSessions] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [userImage, setUserImage] = useState<string | undefined>(undefined);
   const router = useRouter();
 
   useEffect(() => {
@@ -36,9 +37,12 @@ export default function Header() {
         if (!response.ok) throw new Error("Failed to check session");
         const data = await response.json();
         setIsSignedIn(data.isAuthenticated);
+        setUserImage(data.userImage);
+        console.log('Header - checkSession data:', data);
       } catch (error) {
         console.error("Error checking session:", error);
         setIsSignedIn(false);
+        setUserImage(undefined);
       }
     }
     checkSession();
@@ -75,6 +79,7 @@ export default function Header() {
       });
       if (!response.ok) throw new Error("Sign out failed");
       setIsSignedIn(false);
+      setUserImage(undefined);
       setSessions([]);
       window.location.href = '/';
     } catch (error) {
@@ -146,7 +151,11 @@ export default function Header() {
             )}
           </>
         )}
-        <SignIn isSignedIn={isSignedIn} onSignOut={handleSignOut} />
+        <SignIn 
+          isSignedIn={isSignedIn} 
+          onSignOut={handleSignOut} 
+          userImage={userImage} 
+        />
       </nav>
     </header>
   );

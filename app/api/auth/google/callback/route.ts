@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
     const payload = ticket.getPayload();
     const email = payload?.email;
     const name = payload?.name;
+    const image = payload?.picture;
 
     if (!email) {
       console.log('No email in payload');
@@ -44,20 +45,22 @@ export async function GET(req: NextRequest) {
     let userId: string;
     if (!existingUser.rows.length) {
       const result = await db.query(
-        'INSERT INTO "User" (email, name) VALUES ($1, $2) RETURNING id',
-        [email, name]
+        'INSERT INTO "User" (email, name, image) VALUES ($1, $2, $3) RETURNING id', // Use "image"
+        [email, name, image]
       );
       userId = result.rows[0].id.toString();
       console.log('New user added:', email);
     } else {
       userId = existingUser.rows[0].id.toString();
+      await db.query('UPDATE "User" SET image = $1 WHERE email = $2', [image, email]);
       console.log('Existing user found:', email);
     }
     await db.end();
 
-    console.log('Setting cookie and redirecting to:', returnTo);
+    console.log('Setting cookies and redirecting to:', returnTo);
     const response = NextResponse.redirect(new URL(returnTo, req.url));
     response.cookies.set('userId', userId, { httpOnly: true, path: '/', sameSite: 'lax' });
+    response.cookies.set('userImage', image || '', { path: '/', sameSite: 'lax' });
     return response;
   } catch (error) {
     console.error('Google auth error:', error);
