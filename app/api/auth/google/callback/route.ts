@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
     let userId: string;
     if (!existingUser.rows.length) {
       const result = await db.query(
-        'INSERT INTO "User" (email, name, image) VALUES ($1, $2, $3) RETURNING id', // Use "image"
+        'INSERT INTO "User" (email, name, image) VALUES ($1, $2, $3) RETURNING id',
         [email, name, image]
       );
       userId = result.rows[0].id.toString();

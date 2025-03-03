@@ -30,3 +30,32 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Failed to fetch sessions" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const userId = req.cookies.get("userId")?.value;
+    const { sessionId } = await req.json();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!sessionId) {
+      return NextResponse.json({ error: "Session ID is required" }, { status: 400 });
+    }
+
+    const result = await db(
+      'DELETE FROM search_sessions WHERE id = $1 AND user_id = $2 RETURNING id',
+      [sessionId, userId]
+    );
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: "Session not found or not authorized" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Session deleted successfully" }, { status: 200 });
+  } catch (error) {
+    console.error("Error deleting session:", error);
+    return NextResponse.json({ error: "Failed to delete session" }, { status: 500 });
+  }
+}
