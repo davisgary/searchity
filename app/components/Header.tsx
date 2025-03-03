@@ -88,7 +88,7 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full max-w-7xl mx-auto flex items-center justify-between px-6 py-5">
+    <header className="w-full mx-auto flex items-center justify-between px-6 md:px-12 py-5">
       <Link href="/" className="flex items-center space-x-2">
         <TfiWorld className="w-8 h-8 text-white" />
         <span className="text-white text-xl font-bold">AI Search</span>
@@ -96,14 +96,19 @@ export default function Header() {
       <nav className="flex space-x-6 text-sm font-semibold">
         {isSignedIn && (
           <>
-            <button
-              onClick={toggleSessions}
-              className="text-white w-10 h-9 rounded-full transition-all duration-300 hover:bg-neutral-800 flex items-center justify-center"
-            >
-              <MdOutlineManageSearch size={26} />
-            </button>
+            <div className="relative group">
+              <button
+                onClick={toggleSessions}
+                className="text-white w-9 h-9 rounded-full transition-all duration-300 hover:bg-neutral-800 flex items-center justify-center"
+              >
+                <MdOutlineManageSearch size={26} />
+              </button>
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs text-white bg-neutral-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                Sessions
+              </span>
+            </div>
             {showSessions && (
-              <div className="fixed inset-0 flex items-center justify-center z-50">
+              <div className="fixed inset-0 flex items-start justify-center pt-32 pb-10 z-50">
                 <div
                   className="absolute inset-0 bg-black opacity-50"
                   onClick={toggleSessions}

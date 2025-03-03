@@ -62,26 +62,31 @@ export default function SignIn({ isSignedIn, onSignOut, userImage }: SignInProps
     <div className="relative">
       {isSignedIn ? (
         <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="relative w-10 h-10 rounded-full overflow-hidden focus:outline-none"
-          >
-          <img
-            src={userImage || "/meta.png"}
-            alt="Profile"
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-            onError={(e) => {
-              console.log('SignIn - Image failed to load, using /meta.png');
-              e.currentTarget.src = "/meta.png";
-            }}
-          />
-          </button>
+          <div className="relative group">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="relative w-8 h-8 rounded-full overflow-hidden focus:outline-none transition-all duration-300 hover:ring-2 hover:ring-neutral-600"
+            >
+              <img
+                src={userImage || "/meta.png"}
+                alt="Profile"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  console.log('SignIn - Image failed to load, using /meta.png');
+                  e.currentTarget.src = "/meta.png";
+                }}
+              />
+            </button>
+            <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs text-white bg-neutral-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+              Profile
+            </span>
+          </div>
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
               <button
                 onClick={handleSignOutClick}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 rounded-md transition-all duration-300 hover:bg-neutral-300"
               >
                 Sign Out
               </button>
@@ -91,7 +96,7 @@ export default function SignIn({ isSignedIn, onSignOut, userImage }: SignInProps
       ) : (
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-neutral-100 text-gray-800 font-semibold rounded-full transition duration-300 hover:bg-neutral-300"
+          className="flex items-center gap-2 px-4 py-2 bg-neutral-100 text-gray-800 font-semibold rounded-full transition-all duration-300 hover:bg-neutral-300"
         >
           <span>Sign In</span>
         </button>
