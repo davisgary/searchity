@@ -125,7 +125,7 @@ export default function Header() {
                   {sessions.length === 0 ? (
                     <Link 
                       href="/" 
-                      className="flex items-center space-x-2 mb-4 text-center text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-300"
+                      className="flex items-center space-x-2 text-center text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-300"
                       onClick={() => setShowSessions(false)}
                     >
                       <span className="text-white text-lg font-normal">Create your first search</span>

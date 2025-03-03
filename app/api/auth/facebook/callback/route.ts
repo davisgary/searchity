@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     console.log('Tokens received:', !!accessToken);
 
     const userResponse = await fetch(
-      `https://graph.facebook.com/me?fields=id,email,name&access_token=${accessToken}`
+      `https://graph.facebook.com/me?fields=id,email,name,picture.type(large)&access_token=${accessToken}`
     );
     const userData = await userResponse.json();
 
@@ -38,11 +38,14 @@ export async function GET(req: NextRequest) {
     }
     const email = userData.email;
     const name = userData.name;
+    const image = userData.picture?.data?.url;
 
     if (!email) {
       console.log('No email in user data');
       return NextResponse.json({ error: 'No email from Facebook' }, { status: 400 });
     }
+
+    console.log('Facebook - image URL:', image);
 
     const db = createDbClient();
     await db.connect();
@@ -51,13 +54,14 @@ export async function GET(req: NextRequest) {
     let userId: string;
     if (!existingUser.rows.length) {
       const result = await db.query(
-        'INSERT INTO "User" (email, name) VALUES ($1, $2) RETURNING id',
-        [email, name]
+        'INSERT INTO "User" (email, name, image) VALUES ($1, $2, $3) RETURNING id',
+        [email, name, image]
       );
       userId = result.rows[0].id.toString();
       console.log('New user added:', email);
     } else {
       userId = existingUser.rows[0].id.toString();
+      await db.query('UPDATE "User" SET image = $1 WHERE email = $2', [image, email]);
       console.log('Existing user found:', email);
     }
     await db.end();
