@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
 
     const systemMessage = searchResults.some((item) => item.snippet.includes("(Currently happening)"))
       ? "Summarize the following search results, highlighting the ongoing event if applicable."
-      : "Summarize the following search results, ensuring the response directly addresses the user's query: '" + message + "'. Focus on answering what the user asked, using relevant details from the results. Start with a brief intro, then two to three key points, and end with a concise remark.";
+      : "Summarize the following search results in a concise response that directly addresses the user's query: '${message}'. Use this format: - A brief introductory sentence summarizing the key findings. - Two to three bullet points highlighting the most relevant details (use '-' for bullets, no numbers). - A short closing remark tying back to the query. If any result mentions an ongoing event, emphasize it in one of the bullet points.";
 
     console.log("Starting OpenAI stream...");
     const streamCompletion = await openai.chat.completions.create({
