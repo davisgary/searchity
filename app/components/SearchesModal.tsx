@@ -215,7 +215,7 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
             <p className="text-neutral-300 mb-6">
               Are you sure you want to delete all your past searches? This action cannot be undone.
             </p>
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-center space-x-4">
               <button
                 onClick={() => setShowDeleteAllConfirm(false)}
                 className="px-4 py-2 text-neutral-300 hover:text-neutral-100 transition-colors duration-300"

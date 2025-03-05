@@ -5,7 +5,7 @@ import { neon } from "@neondatabase/serverless";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const db = neon(process.env.DATABASE_URL!);
 
-async function fetchWithTimeout(url: string, options = {}, timeout = 1000) {
+async function fetchWithTimeout(url: string, options = {}, timeout = 2000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
   try {
@@ -22,18 +22,11 @@ async function isImageValid(url: string, timeout = 1000) {
     if (url.includes("facebook.com/tr") || url.includes("google-analytics") || url.includes("lookaside.fbsbx.com")) {
       return false;
     }
-
     if (!url.match(/\.(jpeg|jpg|png|webp|gif|svg)$/i)) return false;
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    const res = await fetch(url, {
-      method: "GET",
-      headers: { Range: "bytes=0-99" },
-      signal: controller.signal,
-    });
-
+    const res = await fetch(url, { method: "GET", headers: { Range: "bytes=0-99" }, signal: controller.signal });
     clearTimeout(timeoutId);
     return res.ok && res.status !== 404;
   } catch {
@@ -56,7 +49,6 @@ async function fetchImageFromPage(url: string) {
     const matches = regex.global ? [...html.matchAll(regex)].map(m => m[1]) : [html.match(regex)?.[1]];
     for (const match of matches) if (match && await isImageValid(match)) return match;
   }
-
   return null;
 }
 
@@ -74,20 +66,16 @@ export async function POST(req: NextRequest) {
     const { GOOGLE_API_KEY, CUSTOM_SEARCH_ENGINE_ID } = process.env;
     if (!GOOGLE_API_KEY || !CUSTOM_SEARCH_ENGINE_ID) throw new Error("Missing API keys");
 
-    console.log("Fetching search results...");
-    const searchEngines = [
-      {
-        url: `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${CUSTOM_SEARCH_ENGINE_ID}&q=${encodeURIComponent(message)}&sort=date&fields=items(title,link,snippet,pagemap(cse_image),pagemap(metatags))&num=5`,
-        headers: {},
-      },
-    ];
-
-    const responses = await Promise.all(searchEngines.map(({ url, headers }) => fetchWithTimeout(url, { headers })));
-    if (responses.some(res => !res?.ok)) throw new Error("Failed to fetch search results");
-    console.log("Search results fetched");
-
-    const validResponses = responses.filter((res): res is Response => res !== null);
-    const [googleData] = await Promise.all(validResponses.map(res => res.json()));
+    console.time("Google Search");
+    const searchResponse = await fetchWithTimeout(
+      `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${CUSTOM_SEARCH_ENGINE_ID}&q=${encodeURIComponent(message)}&sort=date&fields=items(title,link,snippet,pagemap(cse_image),pagemap(metatags))&num=5`,
+      { headers: { "User-Agent": "Mozilla/5.0" } },
+      2000
+    );
+    if (!searchResponse) throw new Error("Google search timed out");
+    if (!searchResponse.ok) throw new Error("Failed to fetch search results");
+    const googleData = await searchResponse.json();
+    console.timeEnd("Google Search");
 
     let searchResults = [
       ...(googleData.items || []).map((item: any) => ({
@@ -107,8 +95,6 @@ export async function POST(req: NextRequest) {
       return true;
     });
 
-    searchResults.sort((a, b) => (a.date && b.date ? new Date(b.date).getTime() - new Date(a.date).getTime() : a.source.localeCompare(b.source)));
-
     if (!searchResults.length) {
       return NextResponse.json({ message: "Hmm, we couldn’t find anything with that.", searchResults: [], suggestions: [] });
     }
@@ -123,13 +109,14 @@ export async function POST(req: NextRequest) {
       return item;
     });
 
+    searchResults.sort((a, b) => (a.date && b.date ? new Date(b.date).getTime() - new Date(a.date).getTime() : a.source.localeCompare(b.source)));
+
     const summarizedContent = searchResults.map((item) => `- ${item.title}: ${item.snippet}`).join("\n");
 
+    console.time("OpenAI Summary");
     const systemMessage = searchResults.some((item) => item.snippet.includes("(Currently happening)"))
       ? "Summarize the following search results, highlighting the ongoing event if applicable."
-      : "Summarize the following search results in a concise response that directly addresses the user's query: '${message}'. Use this format: - A brief introductory sentence summarizing the key findings. - Two to three bullet points highlighting the most relevant details (use '-' for bullets, no numbers). - A short closing remark tying back to the query. If any result mentions an ongoing event, emphasize it in one of the bullet points.";
-
-    console.log("Starting OpenAI stream...");
+      : `Summarize the following search results, ensuring the response directly addresses the user's query: '" + message + "'. Focus on answering what the user asked, using relevant details from the results. Start with a brief intro, then two to three key points, and end with a concise remark. Use bullet points, ensuring each point appears on a separate line.`;
     const streamCompletion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       stream: true,
@@ -146,13 +133,14 @@ export async function POST(req: NextRequest) {
         try {
           for await (const chunk of streamCompletion) {
             const token = chunk.choices[0]?.delta?.content;
-            if (token && token.trim()) {
+            if (token) {
               summary += token;
               controller.enqueue(encoder.encode(JSON.stringify({ token }) + "\n"));
             }
           }
+          console.timeEnd("OpenAI Summary");
 
-          console.log("Fetching images...");
+          console.time("Image Fetching");
           searchResults = await Promise.all(
             searchResults.map(async (item) => {
               if (!item.image || item.image.includes("lookaside.instagram.com") || item.image.includes("lookaside.fbsbx.com")) {
@@ -161,26 +149,29 @@ export async function POST(req: NextRequest) {
               return item;
             })
           );
+          console.timeEnd("Image Fetching");
 
-          console.log("Generating suggestions...");
+          console.time("OpenAI Suggestions");
           const suggestionsResponse = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
-              { role: "system", content: "Generate follow-up search suggestions based on the query and results. No specific years." },
+              { role: "system", content: "Generate follow-up search suggestions based on the query and results. No specific years. Format each suggestion on a new line starting with '- '." },
               { role: "user", content: `Query: "${message}". Results:\n\n${summarizedContent}\n\nSuggest relevant follow-ups.` },
             ],
           });
-          const suggestions = suggestionsResponse.choices[0]?.message?.content?.split("\n").map(s => s.trim().replace(/^\d+\.\s*/, "")) || [];
+          const suggestions = suggestionsResponse.choices[0]?.message?.content?.split("\n")
+            .map(s => s.trim().replace(/^-?\s*/, ''))
+            .filter(s => s) || [];
+          console.timeEnd("OpenAI Suggestions");
 
           const newSearchEntry = {
             query: message,
-            timestamp: new Date().toISOString(),
             summary: summary.trim(),
             results: searchResults,
             suggestions,
           };
 
-          console.log("Checking session in Neon...");
+          console.time("DB Update");
           const latestSession = await db(
             'SELECT id, searches FROM search_sessions WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1',
             [userId]
@@ -204,6 +195,7 @@ export async function POST(req: NextRequest) {
             );
             sessionId = latestSession[0].id;
           }
+          console.timeEnd("DB Update");
 
           console.log("Streaming final response with sessionId:", sessionId);
           controller.enqueue(encoder.encode(JSON.stringify({ final: true, searchResults, suggestions, sessionId }) + "\n"));
