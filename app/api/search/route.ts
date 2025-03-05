@@ -60,8 +60,8 @@ export async function POST(req: NextRequest) {
     console.log("Message received:", message);
 
     const userId = req.cookies.get("userId")?.value;
-    if (!userId) throw new Error("User not authenticated");
-    console.log("User ID:", userId);
+    const isLoggedIn = !!userId;
+    console.log("User ID:", userId || "Not logged in");
 
     const { GOOGLE_API_KEY, CUSTOM_SEARCH_ENGINE_ID } = process.env;
     if (!GOOGLE_API_KEY || !CUSTOM_SEARCH_ENGINE_ID) throw new Error("Missing API keys");
@@ -171,31 +171,33 @@ export async function POST(req: NextRequest) {
             suggestions,
           };
 
-          console.time("DB Update");
-          const latestSession = await db(
-            'SELECT id, searches FROM search_sessions WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1',
-            [userId]
-          );
+          let sessionId: number | undefined;
+          if (isLoggedIn) {
+            console.time("DB Update");
+            const latestSession = await db(
+              'SELECT id, searches FROM search_sessions WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1',
+              [userId]
+            );
 
-          let sessionId: number;
-          if (!latestSession.length || latestSession[0].searches.length >= 10) {
-            console.log("Creating new session...");
-            const result = await db(
-              'INSERT INTO search_sessions (user_id, searches) VALUES ($1, $2) RETURNING id',
-              [userId, JSON.stringify([newSearchEntry])]
-            );
-            sessionId = result[0].id;
-          } else {
-            console.log("Updating existing session...");
-            const currentSearches = latestSession[0].searches;
-            currentSearches.push(newSearchEntry);
-            await db(
-              'UPDATE search_sessions SET searches = $1, updated_at = NOW() WHERE id = $2',
-              [JSON.stringify(currentSearches), latestSession[0].id]
-            );
-            sessionId = latestSession[0].id;
+            if (!latestSession.length || latestSession[0].searches.length >= 10) {
+              console.log("Creating new session...");
+              const result = await db(
+                'INSERT INTO search_sessions (user_id, searches) VALUES ($1, $2) RETURNING id',
+                [userId, JSON.stringify([newSearchEntry])]
+              );
+              sessionId = result[0].id;
+            } else {
+              console.log("Updating existing session...");
+              const currentSearches = latestSession[0].searches;
+              currentSearches.push(newSearchEntry);
+              await db(
+                'UPDATE search_sessions SET searches = $1, updated_at = NOW() WHERE id = $2',
+                [JSON.stringify(currentSearches), latestSession[0].id]
+              );
+              sessionId = latestSession[0].id;
+            }
+            console.timeEnd("DB Update");
           }
-          console.timeEnd("DB Update");
 
           console.log("Streaming final response with sessionId:", sessionId);
           controller.enqueue(encoder.encode(JSON.stringify({ final: true, searchResults, suggestions, sessionId }) + "\n"));

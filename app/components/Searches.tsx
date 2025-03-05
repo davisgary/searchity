@@ -55,8 +55,8 @@ export default function Searches({ sessionId }: SearchesProps) {
 
   const handleSearch = useCallback(async (query: string) => {
     const trimmedQuery = query.trim();
-    if (!trimmedQuery || displayedSearches.length >= 15) {
-      setError("This session is full (15 searches max). Start a new one or upgrade for more!");
+    if (!trimmedQuery || (sessionId && displayedSearches.length >= 15)) {
+      setError(sessionId ? "This session is full (15 searches max). Start a new one or upgrade for more!" : "Please enter a search query.");
       return;
     }
 
@@ -131,7 +131,7 @@ export default function Searches({ sessionId }: SearchesProps) {
               return [...prev, newSearch!];
             });
             isFinalProcessed = true;
-            addToSession(newSearch);
+            if (sessionId) addToSession(newSearch);
           } else if (parsed.final && isFinalProcessed) {
             console.log("Extra final chunk ignored:", parsed);
           }
