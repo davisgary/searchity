@@ -26,6 +26,8 @@ export default function Header() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userImage, setUserImage] = useState<string | undefined>(undefined);
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
 
   useEffect(() => {
     async function checkSession() {
@@ -74,6 +76,18 @@ export default function Header() {
     }
   };
 
+  const openSignInModal = () => {
+    console.log("Opening SignIn modal");
+    setIsSignInModalOpen(true);
+    setIsSignUpModalOpen(false);
+  };
+
+  const openSignUpModal = () => {
+    console.log("Opening SignUp modal");
+    setIsSignUpModalOpen(true);
+    setIsSignInModalOpen(false);
+  };
+
   return (
     <header className="w-full mx-auto flex items-center justify-between px-6 md:px-12 py-5">
       <Link href="/" className="flex items-center space-x-2">
@@ -87,13 +101,19 @@ export default function Header() {
             isSignedIn={isSignedIn}
             onSignOut={handleSignOut}
             userImage={userImage}
+            isOpen={isSignUpModalOpen}
+            setIsOpen={setIsSignUpModalOpen}
+            openSignIn={openSignInModal}
           />
         )}
-          <SignIn
-            isSignedIn={isSignedIn}
-            onSignOut={handleSignOut}
-            userImage={userImage}
-          />
+        <SignIn
+          isSignedIn={isSignedIn}
+          onSignOut={handleSignOut}
+          userImage={userImage}
+          isOpen={isSignInModalOpen}
+          setIsOpen={setIsSignInModalOpen}
+          openSignUp={openSignUpModal}
+        />
       </nav>
     </header>
   );

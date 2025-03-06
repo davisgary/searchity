@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { useRouter } from "next/navigation";
@@ -9,10 +10,19 @@ interface SignInProps {
   isSignedIn: boolean;
   onSignOut: () => Promise<void>;
   userImage?: string;
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+  openSignUp: () => void;
 }
 
-export default function SignIn({ isSignedIn, onSignOut, userImage }: SignInProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export default function SignIn({ 
+  isSignedIn, 
+  onSignOut, 
+  userImage, 
+  isOpen, 
+  setIsOpen, 
+  openSignUp 
+}: SignInProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -36,7 +46,7 @@ export default function SignIn({ isSignedIn, onSignOut, userImage }: SignInProps
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      setIsModalOpen(false);
+      setIsOpen(false);
     }
   };
 
@@ -49,6 +59,11 @@ export default function SignIn({ isSignedIn, onSignOut, userImage }: SignInProps
   const handleSignOutClick = async () => {
     await onSignOut();
     setIsDropdownOpen(false);
+  };
+
+  const handleSignUpClick = () => {
+    setIsOpen(false);
+    openSignUp();
   };
 
   const handleDeleteAccount = async () => {
@@ -134,40 +149,54 @@ export default function SignIn({ isSignedIn, onSignOut, userImage }: SignInProps
         </div>
       ) : (
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsOpen(true)}
           className="flex items-center gap-2 px-4 py-2 bg-neutral-100 text-gray-800 font-semibold rounded-full transition-all duration-300 hover:bg-neutral-300"
         >
           <span>Sign In</span>
         </button>
       )}
-      {isModalOpen && !isSignedIn && (
+      {isOpen && !isSignedIn && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 lg:pb-32"
           onClick={handleOverlayClick}
         >
-          <div className="bg-white p-10 rounded-lg shadow-xl transform transition-all duration-300">
+          <div className="bg-neutral-800 px-14 py-5 rounded-lg shadow-xl transform transition-all duration-300">
             <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-4 text-neutral-900 hover:text-neutral-500"
+              onClick={() => setIsOpen(false)}
+              className="absolute top-3 right-4 text-neutral-100 transform transition-all duration-300 hover:text-neutral-500"
             >
               ✕
             </button>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Welcome</h2>
-            <div className="flex flex-col gap-4">
+            <h2 className="text-5xl font-bold text-white my-8">Sign in to<br />start searching</h2>
+            <div className="flex flex-col gap-4 mb-8 tracking-wide">
               <button
                 onClick={handleGoogleSignIn}
-                className="flex items-center gap-3 px-6 py-3 bg-neutral-900 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300"
+                className="flex items-center gap-3 px-4 py-3 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300 border border-neutral-400"
               >
                 <FcGoogle size={28} />
-                <span>Sign in with Google</span>
+                <span className="px-14">Sign in with Google</span>
               </button>
               <button
                 onClick={handleFacebookSignIn}
-                className="flex items-center gap-3 px-6 py-3 bg-neutral-900 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300"
+                className="flex items-center gap-3 px-4 py-3 mb-5 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300 border border-neutral-400"
               >
                 <FaFacebook size={28} className="text-blue-600" />
-                <span>Sign in with Facebook</span>
+                <span className="px-14">Sign in with Facebook</span>
               </button>
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-neutral-400">
+                Don't have an account?{" "}
+                <button
+                  onClick={handleSignUpClick}
+                  className="text-neutral-100 hover:text-neutral-300"
+                >
+                  Sign Up
+                </button>
+              </p>
+              <Link href="/" className="block text-neutral-100 hover:text-neutral-300">
+                Terms and Service
+              </Link>
             </div>
           </div>
         </div>

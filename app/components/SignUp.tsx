@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect } from "react";
+import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 
@@ -8,12 +9,18 @@ interface SignUpProps {
   isSignedIn: boolean;
   onSignOut: () => Promise<void>;
   userImage?: string;
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+  openSignIn: () => void;
 }
 
-export default function SignUp({ isSignedIn, onSignOut, userImage }: SignUpProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+export default function SignUp({ 
+  isSignedIn,
+  userImage, 
+  isOpen, 
+  setIsOpen,
+  openSignIn 
+}: SignUpProps) {
 
   useEffect(() => {
     console.log('SignUp - userImage:', userImage);
@@ -33,102 +40,68 @@ export default function SignUp({ isSignedIn, onSignOut, userImage }: SignUpProps
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      setIsModalOpen(false);
+      setIsOpen(false);
     }
   };
 
-  const handleSignOutClick = async () => {
-    await onSignOut();
-    setIsDropdownOpen(false);
+  const handleSignInClick = () => {
+    console.log("SignUp: Switching to SignIn");
+    setIsOpen(false);
+    openSignIn();
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    if (isDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isDropdownOpen]);
+  if (isSignedIn) return null;
 
   return (
     <div className="relative">
-      {isSignedIn ? (
-        <div className="relative" ref={dropdownRef}>
-          <div className="relative group">
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="relative w-8 h-8 rounded-full overflow-hidden focus:outline-none transition-all duration-300 hover:ring-2 hover:ring-neutral-600"
-            >
-              <img
-                src={userImage || "/meta.png"}
-                alt="Account"
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  console.log('SignUp - Image failed to load, using /meta.png');
-                  e.currentTarget.src = "/meta.png";
-                }}
-              />
-            </button>
-            <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs text-white bg-neutral-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-              Account
-            </span>
-          </div>
-          {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-              <button
-                onClick={handleSignOutClick}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 rounded-md transition-all duration-300 hover:bg-neutral-300"
-              >
-                Sign Out
-              </button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 text-neutral-400 font-semibold transition-all duration-300 hover:text-neutral-100"
-        >
-          <span>Sign Up</span>
-        </button>
-      )}
-      {isModalOpen && !isSignedIn && (
+      <button
+        onClick={() => setIsOpen(true)}
+        className="flex items-center gap-2 px-4 py-2 text-neutral-400 font-semibold transition-all duration-300 hover:text-neutral-100"
+      >
+        <span>Sign Up</span>
+      </button>
+      {isOpen && !isSignedIn && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 pb-10 md:pb-32"
           onClick={handleOverlayClick}
         >
-          <div className="bg-white p-10 rounded-lg shadow-xl transform transition-all duration-300">
+          <div className="bg-neutral-800 px-14 py-5 rounded-lg shadow-xl transform transition-all duration-300">
             <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-4 text-neutral-900 hover:text-neutral-500"
+              onClick={() => setIsOpen(false)}
+              className="absolute top-3 right-4 text-neutral-100 transform transition-all duration-300 hover:text-neutral-500"
             >
               ✕
             </button>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Join Us</h2>
-            <div className="flex flex-col gap-4">
+            <h2 className="text-5xl font-bold text-white my-8">Sign up to<br />start searching</h2>
+            <div className="flex flex-col gap-4 mb-8 tracking-wide">
               <button
                 onClick={handleGoogleSignUp}
-                className="flex items-center gap-3 px-6 py-3 bg-neutral-900 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300"
+                className="flex items-center gap-3 px-4 py-3 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300 border border-neutral-400"
               >
                 <FcGoogle size={28} />
-                <span>Sign up with Google</span>
+                <span className="px-14">Sign up with Google</span>
               </button>
               <button
                 onClick={handleFacebookSignUp}
-                className="flex items-center gap-3 px-6 py-3 bg-neutral-900 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300"
+                className="flex items-center gap-3 px-4 py-3 mb-5 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300 border border-neutral-400"
               >
                 <FaFacebook size={28} className="text-blue-600" />
-                <span>Sign up with Facebook</span>
+                <span className="px-14">Sign up with Facebook</span>
               </button>
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-neutral-400">
+                Already have an account?{" "}
+                <button 
+                  onClick={handleSignInClick}
+                  className="text-neutral-100 hover:text-neutral-300"
+                >
+                  Sign In
+                </button>
+              </p>
+              <Link href="/" className="block text-neutral-100 hover:text-neutral-300">
+                Terms and Service
+              </Link>
             </div>
           </div>
         </div>
