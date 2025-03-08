@@ -7,6 +7,7 @@ import { MdManageSearch } from "react-icons/md";
 import { PiMagnifyingGlassPlusBold } from "react-icons/pi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { PiShareFat } from "react-icons/pi";
+import DeleteModal from './DeleteModal';
 
 interface Search {
   query: string;
@@ -31,6 +32,7 @@ interface SearchesModalProps {
 export default function SearchesModal({ sessions, setSessions }: SearchesModalProps) {
   const [showSessions, setShowSessions] = useState(false);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [showDeleteSingleConfirm, setShowDeleteSingleConfirm] = useState<number | null>(null);
   const router = useRouter();
 
   const handleSessionClick = (sessionId: number) => {
@@ -38,8 +40,7 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
     setShowSessions(false);
   };
 
-  const handleDeleteSession = async (sessionId: number, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteSession = async (sessionId: number) => {
     try {
       const response = await fetch("/api/sessions", {
         method: "DELETE",
@@ -49,6 +50,7 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
 
       if (!response.ok) throw new Error("Failed to delete session");
       setSessions(sessions.filter((session) => session.id !== sessionId));
+      setShowDeleteSingleConfirm(null);
     } catch (error) {
       console.error("Error deleting session:", error);
     }
@@ -112,126 +114,117 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
           Searches
         </span>
       </div>
-
-      {showSessions && (
-        <div className="fixed inset-0 flex items-start justify-center pt-32 pb-10 z-50">
-          <div
-            className="absolute inset-0 bg-black opacity-50"
-            onClick={toggleSessions}
-          ></div>
-          <div className="relative bg-neutral-800 rounded-lg p-6 w-full max-w-xl max-h-[80vh] overflow-y-auto">
-            <button
-              onClick={() => setShowSessions(false)}
-              className="absolute top-3 right-4 text-neutral-100 hover:text-neutral-300"
-            >
-              ✕
-            </button>
-            {sessions.length > 0 && (
-              <>
-                <Link
-                  href="/"
-                  className="flex items-center space-x-2 mb-5 pl-2 font-normal text-neutral-100 transition-all duration-300 hover:text-neutral-400"
-                  onClick={() => setShowSessions(false)}
-                >
-                  <PiMagnifyingGlassPlusBold />
-                  <span>New Search</span>
-                </Link>
-                <h2 className="text-xl text-neutral-300 font-normal tracking-wide mb-4">
-                  Searches
-                </h2>
-              </>
-            )}
-            {sessions.length === 0 ? (
+      <div 
+        className={`fixed inset-0 flex items-start justify-center pt-32 pb-10 z-50 transition-opacity duration-300 ease-in-out ${
+          showSessions ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        <div
+          className="absolute inset-0 bg-black opacity-50"
+          onClick={toggleSessions}
+        ></div>
+        <div 
+          className={`relative bg-neutral-900 rounded-lg p-6 w-full max-w-xl max-h-[80vh] overflow-y-auto transition-transform duration-300 ease-in-out ${
+            showSessions ? 'translate-y-0' : '-translate-y-10'
+          }`}
+        >
+          <button
+            onClick={() => setShowSessions(false)}
+            className="absolute top-3 right-4 text-neutral-100 transition-all duration-300 hover:text-neutral-400"
+          >
+            ✕
+          </button>
+          {sessions.length > 0 && (
+            <>
               <Link
                 href="/"
-                className="flex items-center space-x-2 text-center text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-300"
+                className="flex items-center space-x-2 mb-5 pl-2 font-normal text-neutral-100 transition-all duration-300 hover:text-neutral-400"
                 onClick={() => setShowSessions(false)}
               >
-                <span className="text-white text-lg">Create your first search</span>
-                <PiMagnifyingGlassPlusBold className="text-white" />
+                <PiMagnifyingGlassPlusBold />
+                <span>New Search</span>
               </Link>
-            ) : (
-              <div className="space-y-6">
-                {sortedDates.map((date) => (
-                  <div key={date}>
-                    <h3 className="text-neutral-400 font-medium mb-1">{date}</h3>
-                    <ul className="space-y-2">
-                      {groupedSessions[date].map((session) => (
-                        <li
-                          key={session.id}
-                          className="flex items-center justify-between text-left cursor-pointer p-2 rounded transition-all duration-300 hover:bg-neutral-600"
-                          onClick={() => handleSessionClick(session.id)}
-                        >
-                          <span className="text-base font-normal flex-1">
-                            {session.searches[0]?.query
-                              .replace(/^\d+\.\s*/, "")
-                              .replace(/"/g, "") || "Empty Session"}
-                          </span>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={(e) => handleOpenInNewTab(session.id, e)}
-                              className="p-1 text-neutral-400 hover:text-blue-300"
-                              title="Open in new tab"
-                            >
-                              <PiShareFat size={18} />
-                            </button>
-                            <button
-                              onClick={(e) => handleDeleteSession(session.id, e)}
-                              className="p-1 text-neutral-400 hover:text-red-300"
-                              title="Delete session"
-                            >
-                              <RiDeleteBin6Line size={18} />
-                            </button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-                <div className="me-2 flex justify-end">
-                  <button
-                    onClick={() => setShowDeleteAllConfirm(true)}
-                    className="text-sm text-neutral-400 hover:text-red-300 transition-colors duration-300"
-                  >
-                      Delete All
-                  </button>
+              <h2 className="text-xl text-neutral-300 font-normal tracking-wide mb-4">
+                Searches
+              </h2>
+            </>
+          )}
+          {sessions.length === 0 ? (
+            <Link
+              href="/"
+              className="flex items-center space-x-2 text-center text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-300"
+              onClick={() => setShowSessions(false)}
+            >
+              <span className="text-white text-lg">Create your first search</span>
+              <PiMagnifyingGlassPlusBold className="text-white" />
+            </Link>
+          ) : (
+            <div className="space-y-6">
+              {sortedDates.map((date) => (
+                <div key={date}>
+                  <h3 className="text-neutral-400 font-medium mb-1">{date}</h3>
+                  <ul className="space-y-2">
+                    {groupedSessions[date].map((session) => (
+                      <li
+                        key={session.id}
+                        className="flex items-center justify-between text-left cursor-pointer p-2 rounded transition-all duration-300 hover:bg-neutral-600"
+                        onClick={() => handleSessionClick(session.id)}
+                      >
+                        <span className="text-base font-normal flex-1">
+                          {session.searches[0]?.query
+                            .replace(/^\d+\.\s*/, "")
+                            .replace(/"/g, "") || "Empty Session"}
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={(e) => handleOpenInNewTab(session.id, e)}
+                            className="p-1 text-neutral-400 transition-all duration-300 hover:text-blue-500"
+                            title="Open in new tab"
+                          >
+                            <PiShareFat size={18} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowDeleteSingleConfirm(session.id);
+                            }}
+                            className="p-1 text-neutral-400 transition-all duration-300 hover:text-red-500"
+                            title="Delete session"
+                          >
+                            <RiDeleteBin6Line size={18} />
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+              ))}
+              <div className="me-2 flex justify-end">
+                <button
+                  onClick={() => setShowDeleteAllConfirm(true)}
+                  className="text-sm text-neutral-400 transition-all duration-300 hover:text-red-500"
+                >
+                  Delete All
+                </button>
               </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {showDeleteAllConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div
-            className="absolute inset-0 bg-black opacity-50"
-            onClick={() => setShowDeleteAllConfirm(false)}
-          ></div>
-          <div className="relative bg-neutral-800 rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-xl text-neutral-100 font-medium mb-4">
-              Confirm Deletion
-            </h3>
-            <p className="text-neutral-300 mb-6">
-              Are you sure you want to delete all your past searches? This action cannot be undone.
-            </p>
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={() => setShowDeleteAllConfirm(false)}
-                className="px-4 py-2 text-neutral-300 hover:text-neutral-100 transition-colors duration-300"
-              >
-                No
-              </button>
-              <button
-                onClick={handleDeleteAllSessions}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-300"
-              >
-                Yes
-              </button>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
+      <DeleteModal
+        showModal={showDeleteAllConfirm}
+        setShowModal={setShowDeleteAllConfirm}
+        onConfirm={handleDeleteAllSessions}
+        heading="Are you sure you want to delete?"
+        message="This will permanently delete all your past searches."
+      />
+      <DeleteModal
+        showModal={showDeleteSingleConfirm !== null}
+        setShowModal={() => setShowDeleteSingleConfirm(null)}
+        onConfirm={() => showDeleteSingleConfirm !== null && handleDeleteSession(showDeleteSingleConfirm)}
+        heading="Delete this search?"
+        message="This will permanently delete this search session."
+      />
     </>
   );
 }

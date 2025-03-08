@@ -29,9 +29,13 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
     }
   }, []);
 
+  const isInputValid = input.trim().length > 0;
+
   const onSearch = () => {
-    handleSearch(input);
-    setInput("");
+    if (isInputValid) {
+      handleSearch(input);
+      setInput("");
+    }
   };
 
   return (
@@ -42,7 +46,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (e.key === "Enter" && !e.shiftKey && isInputValid) {
               e.preventDefault();
               onSearch();
             }
@@ -54,12 +58,12 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
         />
         <button
           onClick={onSearch}
-          disabled={isLoading}
+          disabled={isLoading || !isInputValid}
           className="bg-neutral-950 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
           aria-label="Search"
         >
           <TfiWorld
-            className={`w-6 h-6 ${isLoading ? "animate-spin" : ""} ${input ? "opacity-100" : "opacity-60"}`}
+            className={`w-6 h-6 ${isLoading ? "animate-spin" : ""} ${isInputValid ? "opacity-100" : "opacity-60"}`}
           />
         </button>
       </div>

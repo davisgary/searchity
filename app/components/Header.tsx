@@ -97,14 +97,14 @@ export default function Header() {
       <nav className="flex space-x-6 text-sm font-semibold items-center">
         {isSignedIn && <SearchesModal sessions={sessions} setSessions={setSessions} />}
         {!isSignedIn && (
-          <SignUp
-            isSignedIn={isSignedIn}
-            onSignOut={handleSignOut}
-            userImage={userImage}
-            isOpen={isSignUpModalOpen}
-            setIsOpen={setIsSignUpModalOpen}
-            openSignIn={openSignInModal}
-          />
+        <SignUp
+          isSignedIn={isSignedIn}
+          onSignOut={handleSignOut}
+          userImage={userImage}
+          isOpen={isSignUpModalOpen}
+          setIsOpen={setIsSignUpModalOpen}
+          openSignIn={openSignInModal}
+        />
         )}
         <SignIn
           isSignedIn={isSignedIn}

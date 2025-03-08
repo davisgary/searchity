@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import DeleteModal from "./DeleteModal";
+import Dropdown from "./Dropdown";
 
 interface SignInProps {
   isSignedIn: boolean;
@@ -15,21 +17,20 @@ interface SignInProps {
   openSignUp: () => void;
 }
 
-export default function SignIn({ 
-  isSignedIn, 
-  onSignOut, 
-  userImage, 
-  isOpen, 
-  setIsOpen, 
-  openSignUp 
+export default function SignIn({
+  isSignedIn,
+  onSignOut,
+  userImage,
+  isOpen,
+  setIsOpen,
+  openSignUp,
 }: SignInProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
-    console.log('SignIn - userImage:', userImage);
+    console.log("SignIn - userImage:", userImage);
   }, [userImage]);
 
   const handleGoogleSignIn = () => {
@@ -47,12 +48,6 @@ export default function SignIn({
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       setIsOpen(false);
-    }
-  };
-
-  const handleDeleteOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      setIsDeleteModalOpen(false);
     }
   };
 
@@ -90,26 +85,10 @@ export default function SignIn({
     setIsDeleteModalOpen(true);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    if (isDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isDropdownOpen]);
-
   return (
     <div className="relative">
       {isSignedIn ? (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative">
           <div className="relative group">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -121,7 +100,7 @@ export default function SignIn({
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
                 onError={(e) => {
-                  console.log('SignIn - Image failed to load, using /meta.png');
+                  console.log("SignIn - Image failed to load, using /meta.png");
                   e.currentTarget.src = "/meta.png";
                 }}
               />
@@ -131,20 +110,7 @@ export default function SignIn({
             </span>
           </div>
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-neutral-800 rounded-md shadow-lg z-50">
-              <button
-                onClick={handleSignOutClick}
-                className="w-full text-left px-4 py-2 text-sm text-neutral-100 rounded-t-md transition-all duration-300 hover:text-neutral-400"
-              >
-                Sign Out
-              </button>
-              <button
-                onClick={handleDeleteConfirm}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 rounded-b-md transition-all duration-300 hover:text-red-400"
-              >
-                Delete Account
-              </button>
-            </div>
+            <Dropdown onSignOut={handleSignOutClick} onDeleteConfirm={handleDeleteConfirm} />
           )}
         </div>
       ) : (
@@ -167,7 +133,9 @@ export default function SignIn({
             >
               ✕
             </button>
-            <h2 className="text-5xl font-bold text-white my-8">Sign in to<br />start searching</h2>
+            <h2 className="text-5xl font-bold text-white my-8">
+              Sign in to<br />start searching
+            </h2>
             <div className="flex flex-col gap-4 mb-8 tracking-wide">
               <button
                 onClick={handleGoogleSignIn}
@@ -186,7 +154,7 @@ export default function SignIn({
             </div>
             <div className="text-center space-y-2">
               <p className="text-neutral-400">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <button
                   onClick={handleSignUpClick}
                   className="text-neutral-100 hover:text-neutral-300"
@@ -201,39 +169,13 @@ export default function SignIn({
           </div>
         </div>
       )}
-      {isDeleteModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={handleDeleteOverlayClick}
-        >
-          <div className="bg-white p-6 rounded-lg shadow-xl transform transition-all duration-300 relative">
-            <button
-              onClick={() => setIsDeleteModalOpen(false)}
-              className="absolute top-3 right-4 text-neutral-900 hover:text-neutral-500"
-            >
-              ✕
-            </button>
-            <h2 className="text-xl font-bold text-gray-800 my-4">
-              Are you sure you want to delete your account?
-            </h2>
-            <p className="text-gray-600 mb-6">This action cannot be undone.</p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 bg-neutral-200 text-gray-800 font-semibold rounded-full hover:bg-neutral-300 transition duration-300"
-              >
-                No
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                className="px-4 py-2 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition duration-300"
-              >
-                Yes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteModal
+        showModal={isDeleteModalOpen}
+        setShowModal={setIsDeleteModalOpen}
+        onConfirm={handleDeleteAccount}
+        heading="Are you sure you want to delete your account?"
+        message="This action cannot be undone."
+      />
     </div>
   );
 }

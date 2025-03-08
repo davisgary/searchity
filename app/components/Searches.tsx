@@ -55,11 +55,16 @@ export default function Searches({ sessionId }: SearchesProps) {
 
   const handleSearch = useCallback(async (query: string) => {
     const trimmedQuery = query.trim();
-    if (!trimmedQuery || (sessionId && displayedSearches.length >= 15)) {
-      setError(sessionId ? "This session is full (15 searches max). Start a new one or upgrade for more!" : "Please enter a search query.");
+    
+    if (!trimmedQuery) {
       return;
     }
-
+  
+    if (sessionId && displayedSearches.length >= 15) {
+      setError("This session is full (15 searches max). Start a new one or upgrade for more!");
+      return;
+    }
+  
     setIsLoading(true);
     setError(null);
 
