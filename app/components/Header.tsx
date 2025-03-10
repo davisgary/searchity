@@ -94,8 +94,16 @@ export default function Header() {
         <TfiWorld className="w-8 h-8 text-white" />
         <span className="text-white text-xl font-bold">AI Search</span>
       </Link>
-      <nav className="flex space-x-6 text-sm font-semibold items-center">
+      <nav className="flex space-x-2 sm:space-x-6 text-sm font-semibold items-center">
         {isSignedIn && <SearchesModal sessions={sessions} setSessions={setSessions} />}
+        <SignIn
+          isSignedIn={isSignedIn}
+          onSignOut={handleSignOut}
+          userImage={userImage}
+          isOpen={isSignInModalOpen}
+          setIsOpen={setIsSignInModalOpen}
+          openSignUp={openSignUpModal}
+        />
         {!isSignedIn && (
         <SignUp
           isSignedIn={isSignedIn}
@@ -106,14 +114,6 @@ export default function Header() {
           openSignIn={openSignInModal}
         />
         )}
-        <SignIn
-          isSignedIn={isSignedIn}
-          onSignOut={handleSignOut}
-          userImage={userImage}
-          isOpen={isSignInModalOpen}
-          setIsOpen={setIsSignInModalOpen}
-          openSignUp={openSignUpModal}
-        />
       </nav>
     </header>
   );
