@@ -89,13 +89,17 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full mx-auto flex items-center justify-between px-6 md:px-12 py-5">
+    <header className="w-full mx-auto flex items-center justify-between px-6 md:px-12 py-4">
       <Link href="/" className="flex items-center space-x-2">
         <TfiWorld className="w-8 h-8 text-white" />
         <span className="text-white text-xl font-bold">AI Search</span>
       </Link>
       <nav className="flex space-x-2 sm:space-x-6 text-sm font-semibold items-center">
-        {isSignedIn && <SearchesModal sessions={sessions} setSessions={setSessions} />}
+      {isSignedIn && (
+        <div className="no-space-x">
+          <SearchesModal sessions={sessions} setSessions={setSessions} />
+        </div>
+      )}
         <SignIn
           isSignedIn={isSignedIn}
           onSignOut={handleSignOut}

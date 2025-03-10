@@ -19,15 +19,16 @@ interface SearchesProps {
   sessionId: string | null;
 }
 
-export default function Searches({ sessionId }: SearchesProps) {
+export default function Searches({ sessionId: initialSessionId }: SearchesProps) {
   const [displayedSearches, setDisplayedSearches] = useState<Search[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(initialSessionId);
   const router = useRouter();
 
   useEffect(() => {
     async function fetchSession() {
-      if (!sessionId) {
+      if (!currentSessionId) {
         setDisplayedSearches([]);
         return;
       }
@@ -38,9 +39,9 @@ export default function Searches({ sessionId }: SearchesProps) {
         if (!response.ok) throw new Error("Failed to fetch sessions");
         const data = await response.json();
         const selectedSession = data.sessions.find(
-          (s: any) => s.id === parseInt(sessionId)
+          (s: any) => s.id === parseInt(currentSessionId)
         );
-        console.log("Fetched session for sessionId", sessionId, ":", selectedSession);
+        console.log("Fetched session for sessionId", currentSessionId, ":", selectedSession);
         if (selectedSession) {
           setDisplayedSearches(selectedSession.searches);
         }
@@ -50,144 +51,154 @@ export default function Searches({ sessionId }: SearchesProps) {
         setError("Failed to load session");
       }
     }
-    if (sessionId) fetchSession();
-  }, [sessionId]);
+    if (currentSessionId) fetchSession();
+  }, [currentSessionId]);
 
-  const handleSearch = useCallback(async (query: string) => {
-    const trimmedQuery = query.trim();
-    
-    if (!trimmedQuery) {
-      return;
-    }
-  
-    if (sessionId && displayedSearches.length >= 15) {
-      setError("This session is full (15 searches max). Start a new one or upgrade for more!");
-      return;
-    }
-  
-    setIsLoading(true);
-    setError(null);
+  const startNewSession = useCallback(() => {
+    setCurrentSessionId(null);
+    setDisplayedSearches([]);
+    router.push("/");
+  }, [router]);
 
-    try {
-      console.time("Search API");
-      const response = await fetch("/api/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmedQuery }),
-      });
-      if (!response.ok) throw new Error(`Search API failed: ${await response.text()}`);
-      console.timeEnd("Search API");
+  const handleSearch = useCallback(
+    async (query: string) => {
+      const trimmedQuery = query.trim();
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("Readable stream not supported");
+      if (!trimmedQuery) {
+        return;
+      }
 
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let summary = "";
-      let finalResults: any[] = [];
-      let finalSuggestions: string[] = [];
-      let newSearch: Search | null = null;
-      let isFinalProcessed = false;
+      if (currentSessionId && displayedSearches.length >= 15) {
+        setError("This session is full (15 searches max). Start a new one or upgrade for more!");
+        return;
+      }
 
-      console.time("Stream Processing");
-      let chunkCount = 0;
+      setIsLoading(true);
+      setError(null);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      try {
+        console.time("Search API");
+        const response = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: trimmedQuery }),
+        });
+        if (!response.ok) throw new Error(`Search API failed: ${await response.text()}`);
+        console.timeEnd("Search API");
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("Readable stream not supported");
 
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          chunkCount++;
-          console.log(`Chunk ${chunkCount}:`, line);
-          const parsed = JSON.parse(line);
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let summary = "";
+        let finalResults: any[] = [];
+        let finalSuggestions: string[] = [];
+        let newSearch: Search | null = null;
+        let isFinalProcessed = false;
 
-          if (parsed.token !== undefined) {
-            summary += parsed.token;
-            setDisplayedSearches((prev) => {
-              const existing = prev.find((s) => s.query === trimmedQuery);
-              if (existing) {
-                return prev.map((s) =>
-                  s.query === trimmedQuery ? { ...s, summary } : s
-                );
-              }
-              return [...prev, { query: trimmedQuery, summary, results: [], suggestions: [] }];
-            });
-          }
+        console.time("Stream Processing");
+        let chunkCount = 0;
 
-          if (parsed.final && !isFinalProcessed) {
-            console.log("Processing final chunk:", parsed);
-            finalResults = parsed.searchResults || [];
-            finalSuggestions = parsed.suggestions || [];
-            newSearch = { query: trimmedQuery, summary, results: finalResults, suggestions: finalSuggestions };
-            console.log("Final search data received:", newSearch);
-            setDisplayedSearches((prev) => {
-              const existing = prev.find((s) => s.query === trimmedQuery);
-              if (existing) {
-                return prev.map((s) =>
-                  s.query === trimmedQuery ? { ...s, results: finalResults, suggestions: finalSuggestions } : s
-                );
-              }
-              console.log("Adding new search to state:", newSearch);
-              return [...prev, newSearch!];
-            });
-            isFinalProcessed = true;
-            if (sessionId) addToSession(newSearch);
-          } else if (parsed.final && isFinalProcessed) {
-            console.log("Extra final chunk ignored:", parsed);
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            chunkCount++;
+            console.log(`Chunk ${chunkCount}:`, line);
+            const parsed = JSON.parse(line);
+
+            if (parsed.token !== undefined) {
+              summary += parsed.token;
+              setDisplayedSearches((prev) => {
+                const existing = prev.find((s) => s.query === trimmedQuery);
+                if (existing) {
+                  return prev.map((s) =>
+                    s.query === trimmedQuery ? { ...s, summary } : s
+                  );
+                }
+                return [...prev, { query: trimmedQuery, summary, results: [], suggestions: [] }];
+              });
+            }
+
+            if (parsed.final && !isFinalProcessed) {
+              console.log("Processing final chunk:", parsed);
+              finalResults = parsed.searchResults || [];
+              finalSuggestions = parsed.suggestions || [];
+              newSearch = { query: trimmedQuery, summary, results: finalResults, suggestions: finalSuggestions };
+              console.log("Final search data received:", newSearch);
+              setDisplayedSearches((prev) => {
+                const existing = prev.find((s) => s.query === trimmedQuery);
+                if (existing) {
+                  return prev.map((s) =>
+                    s.query === trimmedQuery ? { ...s, results: finalResults, suggestions: finalSuggestions } : s
+                  );
+                }
+                console.log("Adding new search to state:", newSearch);
+                return [...prev, newSearch!];
+              });
+              isFinalProcessed = true;
+              addToSession(newSearch);
+            } else if (parsed.final && isFinalProcessed) {
+              console.log("Extra final chunk ignored:", parsed);
+            }
           }
         }
-      }
-      console.timeEnd("Stream Processing");
+        console.timeEnd("Stream Processing");
 
-      async function addToSession(search: Search) {
-        try {
-          console.time("Add-to-Session API");
-          const addResponse = await fetch("/api/add-to-session", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sessionId: sessionId ? parseInt(sessionId) : null, ...search }),
-          });
-          const addData = await addResponse.json();
-          console.timeEnd("Add-to-Session API");
-
-          if (!addData.success) {
-            if (addData.limitReached) setError(addData.message);
-            else throw new Error(`Add-to-session failed: ${addData.error || "Unknown error"}`);
-          } else if (addData.isNewSession || !sessionId) {
-            console.log("New session created, redirecting to:", addData.sessionId);
-            router.push(`/?sessionId=${addData.sessionId}`);
-          } else {
-            setDisplayedSearches((prev) => {
-              const serverSearches = addData.updatedSearches as Search[];
-              const alreadyAdded = prev.some((s) => s.query === search.query && s.summary === search.summary);
-              if (alreadyAdded && prev.length === serverSearches.length) {
-                console.log("Server sync skipped - search already added:", serverSearches);
-                return prev;
-              }
-              console.log("Syncing with server data:", serverSearches);
-              return serverSearches;
+        async function addToSession(search: Search) {
+          try {
+            console.time("Add-to-Session API");
+            const addResponse = await fetch("/api/sessions/add-to", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ sessionId: currentSessionId ? parseInt(currentSessionId) : null, ...search }),
             });
+            const addData = await addResponse.json();
+            console.timeEnd("Add-to-Session API");
+
+            if (!addData.success) {
+              if (addData.limitReached) setError(addData.message);
+              else throw new Error(`Add-to-session failed: ${addData.error || "Unknown error"}`);
+            } else if (addData.isNewSession || !currentSessionId) {
+              console.log("New session created, redirecting to:", addData.sessionId);
+              setCurrentSessionId(addData.sessionId);
+              router.push(`/?sessionId=${addData.sessionId}`);
+            } else {
+              setDisplayedSearches((prev) => {
+                const serverSearches = addData.updatedSearches as Search[];
+                const alreadyAdded = prev.some((s) => s.query === search.query && s.summary === search.summary);
+                if (alreadyAdded && prev.length === serverSearches.length) {
+                  console.log("Server sync skipped - search already added:", serverSearches);
+                  return prev;
+                }
+                console.log("Syncing with server data:", serverSearches);
+                return serverSearches;
+              });
+            }
+          } catch (error: unknown) {
+            const err = error instanceof Error ? error : new Error(String(error));
+            console.error("Add-to-session error:", err);
+            setError(err.message);
+            setDisplayedSearches((prev) => prev.filter((s) => s.query !== search.query));
           }
-        } catch (error: unknown) {
-          const err = error instanceof Error ? error : new Error(String(error));
-          console.error("Add-to-session error:", err);
-          setError(err.message);
-          setDisplayedSearches((prev) => prev.filter((s) => s.query !== search.query));
         }
+      } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        console.error("Search error:", err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error: unknown) {
-      const err = error instanceof Error ? error : new Error(String(error));
-      console.error("Search error:", err);
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [displayedSearches, sessionId, router]);
+    },
+    [displayedSearches, currentSessionId, router]
+  );
 
   useEffect(() => {
     if (displayedSearches.length) {
@@ -195,8 +206,6 @@ export default function Searches({ sessionId }: SearchesProps) {
       lastSearch?.scrollIntoView({ behavior: "smooth" });
     }
   }, [displayedSearches]);
-
-  console.log("Rendering Searches - sessionId:", sessionId, "isLoading:", isLoading, "displayedSearches length:", displayedSearches.length);
 
   return (
     <div className="w-full max-w-3xl mx-auto flex flex-col items-center justify-start flex-grow px-5 py-16">
@@ -210,7 +219,7 @@ export default function Searches({ sessionId }: SearchesProps) {
       {error && <p className="mt-4 text-red-500">{error}</p>}
       {displayedSearches.map((search, index) => (
         <div
-          key={`${sessionId || "temp"}-${index}`}
+          key={`${currentSessionId || "temp"}-${index}`}
           id={`search-${index}`}
           className="mt-4 w-full text-left"
         >
@@ -244,6 +253,14 @@ export default function Searches({ sessionId }: SearchesProps) {
                 })}
               </ul>
             </div>
+          )}
+          {search.results.length > 0 && (
+            <button
+              onClick={startNewSession}
+              className="mt-4 text-normal text-neutral-400 rounded-2xl border border-white/20 px-3 focus:outline-none focus:ring-0 active:bg-transparent transition-all duration-300 hover:scale-105"
+            >
+              New Search
+            </button>
           )}
         </div>
       ))}

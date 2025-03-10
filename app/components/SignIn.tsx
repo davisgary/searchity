@@ -1,12 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import { useRouter } from "next/navigation";
-import DeleteModal from "./DeleteModal";
-import Dropdown from "./Dropdown";
+import Account from "./Account";
 
 interface SignInProps {
   isSignedIn: boolean;
@@ -25,14 +22,6 @@ export default function SignIn({
   setIsOpen,
   openSignUp,
 }: SignInProps) {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    console.log("SignIn - userImage:", userImage);
-  }, [userImage]);
-
   const handleGoogleSignIn = () => {
     const currentPath = window.location.pathname;
     const authUrl = `/api/auth/google?returnTo=${encodeURIComponent(currentPath)}`;
@@ -51,68 +40,15 @@ export default function SignIn({
     }
   };
 
-  const handleSignOutClick = async () => {
-    await onSignOut();
-    setIsDropdownOpen(false);
-  };
-
   const handleSignUpClick = () => {
     setIsOpen(false);
     openSignUp();
   };
 
-  const handleDeleteAccount = async () => {
-    try {
-      const response = await fetch("/api/delete-account", {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to delete account");
-      }
-      await onSignOut();
-      router.push("/");
-      router.refresh();
-    } catch (error) {
-      console.error("Error deleting account:", error);
-      alert("Failed to delete account. Please try again.");
-    }
-    setIsDeleteModalOpen(false);
-    setIsDropdownOpen(false);
-  };
-
-  const handleDeleteConfirm = () => {
-    setIsDeleteModalOpen(true);
-  };
-
   return (
     <div className="relative">
       {isSignedIn ? (
-        <div className="relative">
-          <div className="relative group">
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="relative w-8 h-8 rounded-full overflow-hidden focus:outline-none transition-all duration-300 hover:ring-2 hover:ring-neutral-600"
-            >
-              <img
-                src={userImage || "/meta.png"}
-                alt="Account"
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  console.log("SignIn - Image failed to load, using /meta.png");
-                  e.currentTarget.src = "/meta.png";
-                }}
-              />
-            </button>
-            <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs text-white bg-neutral-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-              Account
-            </span>
-          </div>
-          {isDropdownOpen && (
-            <Dropdown onSignOut={handleSignOutClick} onDeleteConfirm={handleDeleteConfirm} />
-          )}
-        </div>
+        <Account isSignedIn={isSignedIn} onSignOut={onSignOut} userImage={userImage} />
       ) : (
         <button
           onClick={() => setIsOpen(true)}
@@ -129,7 +65,7 @@ export default function SignIn({
           <div className="bg-neutral-800 px-8 sm:px-14 py-5 rounded-lg shadow-xl transform transition-all duration-300">
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-3 right-4 text-neutral-100 transform transition-all duration-300 hover:text-neutral-500"
+              className="absolute top-3 right-5 text-neutral-100 text-lg transform transition-all duration-300 hover:text-neutral-500"
             >
               ✕
             </button>
@@ -139,14 +75,14 @@ export default function SignIn({
             <div className="flex flex-col gap-4 mb-8 tracking-wide">
               <button
                 onClick={handleGoogleSignIn}
-                className="flex items-center gap-6 sm:gap-3 px-4 py-3 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300 border border-neutral-400"
+                className="flex items-center gap-6 sm:gap-3 px-4 py-3 text-white font-semibold rounded-full hover:bg-neutral-700 hover:scale-105 transition duration-300 border border-neutral-400"
               >
                 <FcGoogle size={28} />
                 <span className="px-10 sm:px-14">Sign in with Google</span>
               </button>
               <button
                 onClick={handleFacebookSignIn}
-                className="flex items-center gap-6 sm:gap-3 px-4 py-3 mb-5 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300 border border-neutral-400"
+                className="flex items-center gap-6 sm:gap-3 px-4 py-3 mb-5 text-white font-semibold rounded-full hover:bg-neutral-700 hover:scale-105 transition duration-300 border border-neutral-400"
               >
                 <FaFacebook size={28} className="text-blue-600" />
                 <span className="px-10 sm:px-14">Sign in with Facebook</span>
@@ -169,13 +105,6 @@ export default function SignIn({
           </div>
         </div>
       )}
-      <DeleteModal
-        showModal={isDeleteModalOpen}
-        setShowModal={setIsDeleteModalOpen}
-        onConfirm={handleDeleteAccount}
-        heading="Are you sure you want to delete your account?"
-        message="This action cannot be undone."
-      />
     </div>
   );
 }

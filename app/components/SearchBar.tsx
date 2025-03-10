@@ -40,7 +40,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
 
   return (
     <div className="sticky top-0 z-10 bg-neutral-950 w-full pt-4">
-      <div className="w-full relative flex items-center bg-neutral-900 rounded-2xl border border-white/20 px-5 pr-3">
+      <div className="w-full relative flex items-center bg-neutral-900 rounded-2xl border-2 border-white/20 px-5 pr-3">
         <textarea
           ref={textareaRef}
           value={input}
@@ -52,7 +52,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
             }
           }}
           placeholder="Enter your search..."
-          className="w-full bg-neutral-900 text-lg font-light text-white placeholder-neutral-400 focus:outline-none resize-none overflow-hidden py-4 pr-2"
+          className="w-full bg-neutral-900 text-lg text-white placeholder-neutral-400 focus:outline-none resize-none overflow-hidden py-4 pr-2"
           rows={1}
           style={{ minHeight: "65px", maxHeight: "200px", paddingTop: "19px", paddingBottom: "18px" }}
         />

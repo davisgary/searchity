@@ -115,12 +115,12 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
         </span>
       </div>
       <div 
-        className={`fixed inset-0 flex items-start justify-center pt-32 pb-10 z-50 transition-opacity duration-300 ease-in-out ${
+        className={`fixed inset-2 flex items-start justify-center pt-32 pb-10 z-50 transition-opacity duration-300 ease-in-out ${
           showSessions ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
         <div
-          className="absolute inset-0 bg-black opacity-50"
+          className="absolute inset-2 bg-black opacity-50"
           onClick={toggleSessions}
         ></div>
         <div 
@@ -130,7 +130,7 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
         >
           <button
             onClick={() => setShowSessions(false)}
-            className="absolute top-3 right-4 text-neutral-100 transition-all duration-300 hover:text-neutral-400"
+            className="absolute top-3 right-5 text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-400"
           >
             ✕
           </button>

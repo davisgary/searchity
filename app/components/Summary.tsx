@@ -59,7 +59,7 @@ const Summary: React.FC<SummaryProps> = ({ summary }) => {
       }
 
       return (
-        <p key={index} className="mb-3 font-light" dangerouslySetInnerHTML={{ __html: processText(line) }} />
+        <p key={index} className="mb-3" dangerouslySetInnerHTML={{ __html: processText(line) }} />
       );
     });
   }, [formattedSummary]);

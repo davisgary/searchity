@@ -68,7 +68,7 @@ export default function SignUp({
           <div className="bg-neutral-800 px-8 sm:px-14 py-5 rounded-lg shadow-xl transform transition-all duration-300">
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-3 right-4 text-neutral-100 transform transition-all duration-300 hover:text-neutral-500"
+              className="absolute top-3 right-4 text-neutral-100 text-lg transform transition-all duration-300 hover:text-neutral-500"
             >
               ✕
             </button>
@@ -76,14 +76,14 @@ export default function SignUp({
             <div className="flex flex-col gap-4 mb-8 tracking-wide">
               <button
                 onClick={handleGoogleSignUp}
-                className="flex items-center gap-6 sm:gap-3 px-4 py-3 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300 border border-neutral-400"
+                className="flex items-center gap-6 sm:gap-3 px-4 py-3 text-white font-semibold rounded-full hover:bg-neutral-700 hover:scale-105 transition duration-300 border border-neutral-400"
               >
                 <FcGoogle size={28} />
                 <span className="px-10 sm:px-14">Sign up with Google</span>
               </button>
               <button
                 onClick={handleFacebookSignUp}
-                className="flex items-center gap-6 sm:gap-3 px-4 py-3 mb-5 text-white font-semibold rounded-full hover:bg-neutral-700 transition duration-300 border border-neutral-400"
+                className="flex items-center gap-6 sm:gap-3 px-4 py-3 mb-5 text-white font-semibold rounded-full hover:bg-neutral-700 hover:scale-105 transition duration-300 border border-neutral-400"
               >
                 <FaFacebook size={28} className="text-blue-600" />
                 <span className="px-10 sm:px-14">Sign up with Facebook</span>
