@@ -7,19 +7,30 @@ import Loading from "./Loading";
 import SearchBar from "./SearchBar";
 import Trends from "./Trends";
 import { useRouter } from "next/navigation";
+import { ReactNode } from "react";
 
 interface Search {
   query: string;
   summary: string;
   results: { title: string; link: string; snippet: string; image: string }[];
   suggestions: string[];
+  timestamp?: string;
+}
+
+interface Session {
+  id: number;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  searches: Search[];
 }
 
 interface SearchesProps {
   sessionId: string | null;
+  setSessions: React.Dispatch<React.SetStateAction<Session[]>>;
 }
 
-export default function Searches({ sessionId: initialSessionId }: SearchesProps) {
+export default function Searches({ sessionId: initialSessionId, setSessions }: SearchesProps): ReactNode {
   const [displayedSearches, setDisplayedSearches] = useState<Search[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,12 +49,11 @@ export default function Searches({ sessionId: initialSessionId }: SearchesProps)
         const response = await fetch("/api/sessions");
         if (!response.ok) throw new Error("Failed to fetch sessions");
         const data = await response.json();
-        const selectedSession = data.sessions.find(
-          (s: any) => s.id === parseInt(currentSessionId)
-        );
+        const selectedSession = data.sessions.find((s: any) => s.id === parseInt(currentSessionId));
         console.log("Fetched session for sessionId", currentSessionId, ":", selectedSession);
         if (selectedSession) {
           setDisplayedSearches(selectedSession.searches);
+          setSessions(data.sessions);
         }
         console.timeEnd("Session Fetch");
       } catch (error) {
@@ -52,7 +62,7 @@ export default function Searches({ sessionId: initialSessionId }: SearchesProps)
       }
     }
     if (currentSessionId) fetchSession();
-  }, [currentSessionId]);
+  }, [currentSessionId, setSessions]);
 
   const startNewSession = useCallback(() => {
     setCurrentSessionId(null);
@@ -63,13 +73,10 @@ export default function Searches({ sessionId: initialSessionId }: SearchesProps)
   const handleSearch = useCallback(
     async (query: string) => {
       const trimmedQuery = query.trim();
+      if (!trimmedQuery) return;
 
-      if (!trimmedQuery) {
-        return;
-      }
-
-      if (currentSessionId && displayedSearches.length >= 15) {
-        setError("This session is full (15 searches max). Start a new one or upgrade for more!");
+      if (currentSessionId && displayedSearches.length >= 10) {
+        setError("This session is full (10 searches max). Start a new one!");
         return;
       }
 
@@ -98,8 +105,6 @@ export default function Searches({ sessionId: initialSessionId }: SearchesProps)
         let isFinalProcessed = false;
 
         console.time("Stream Processing");
-        let chunkCount = 0;
-
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -110,8 +115,6 @@ export default function Searches({ sessionId: initialSessionId }: SearchesProps)
 
           for (const line of lines) {
             if (!line.trim()) continue;
-            chunkCount++;
-            console.log(`Chunk ${chunkCount}:`, line);
             const parsed = JSON.parse(line);
 
             if (parsed.token !== undefined) {
@@ -128,11 +131,9 @@ export default function Searches({ sessionId: initialSessionId }: SearchesProps)
             }
 
             if (parsed.final && !isFinalProcessed) {
-              console.log("Processing final chunk:", parsed);
               finalResults = parsed.searchResults || [];
               finalSuggestions = parsed.suggestions || [];
-              newSearch = { query: trimmedQuery, summary, results: finalResults, suggestions: finalSuggestions };
-              console.log("Final search data received:", newSearch);
+              newSearch = { query: trimmedQuery, summary, results: finalResults, suggestions: finalSuggestions, timestamp: new Date().toISOString() };
               setDisplayedSearches((prev) => {
                 const existing = prev.find((s) => s.query === trimmedQuery);
                 if (existing) {
@@ -140,13 +141,10 @@ export default function Searches({ sessionId: initialSessionId }: SearchesProps)
                     s.query === trimmedQuery ? { ...s, results: finalResults, suggestions: finalSuggestions } : s
                   );
                 }
-                console.log("Adding new search to state:", newSearch);
                 return [...prev, newSearch!];
               });
               isFinalProcessed = true;
-              addToSession(newSearch);
-            } else if (parsed.final && isFinalProcessed) {
-              console.log("Extra final chunk ignored:", parsed);
+              await addToSession(newSearch);
             }
           }
         }
@@ -166,38 +164,50 @@ export default function Searches({ sessionId: initialSessionId }: SearchesProps)
             if (!addData.success) {
               if (addData.limitReached) setError(addData.message);
               else throw new Error(`Add-to-session failed: ${addData.error || "Unknown error"}`);
-            } else if (addData.isNewSession || !currentSessionId) {
-              console.log("New session created, redirecting to:", addData.sessionId);
+              return;
+            }
+
+            if (addData.isNewSession || !currentSessionId) {
+              console.log("New session created with ID:", addData.sessionId);
               setCurrentSessionId(addData.sessionId);
               router.push(`/?sessionId=${addData.sessionId}`);
+              setSessions((prev) => {
+                const newSession: Session = {
+                  id: addData.sessionId,
+                  user_id: "current_user_id",
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                  searches: addData.updatedSearches,
+                };
+                return [newSession, ...prev.filter((s) => s.id !== newSession.id)];
+              });
             } else {
-              setDisplayedSearches((prev) => {
-                const serverSearches = addData.updatedSearches as Search[];
-                const alreadyAdded = prev.some((s) => s.query === search.query && s.summary === search.summary);
-                if (alreadyAdded && prev.length === serverSearches.length) {
-                  console.log("Server sync skipped - search already added:", serverSearches);
-                  return prev;
-                }
-                console.log("Syncing with server data:", serverSearches);
-                return serverSearches;
+              setDisplayedSearches(addData.updatedSearches);
+              setSessions((prev) => {
+                const updatedSession: Session = {
+                  id: parseInt(currentSessionId!),
+                  user_id: "current_user_id",
+                  created_at: prev.find((s) => s.id === parseInt(currentSessionId!))?.created_at || new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                  searches: addData.updatedSearches,
+                };
+                return prev.map((s) => (s.id === updatedSession.id ? updatedSession : s));
               });
             }
-          } catch (error: unknown) {
-            const err = error instanceof Error ? error : new Error(String(error));
-            console.error("Add-to-session error:", err);
-            setError(err.message);
+          } catch (error) {
+            console.error("Add-to-session error:", error);
+            setError("Failed to add search to session");
             setDisplayedSearches((prev) => prev.filter((s) => s.query !== search.query));
           }
         }
-      } catch (error: unknown) {
-        const err = error instanceof Error ? error : new Error(String(error));
-        console.error("Search error:", err);
-        setError(err.message);
+      } catch (error) {
+        console.error("Search error:", error);
+        setError("Search failed");
       } finally {
         setIsLoading(false);
       }
     },
-    [displayedSearches, currentSessionId, router]
+    [displayedSearches, currentSessionId, router, setSessions]
   );
 
   useEffect(() => {

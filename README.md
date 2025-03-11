@@ -17,5 +17,5 @@ The site will be running at <http://localhost:3000>
 - OpenAI gpt-4o-mini
 - Google Custom Search
 - Google Cloud BigQuery
-- Google Auth
+- Google & Facebook OAuth
 - Neon db

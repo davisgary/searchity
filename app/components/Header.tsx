@@ -12,6 +12,7 @@ interface Search {
   summary: string;
   results: { title: string; link: string; snippet: string; image: string }[];
   suggestions: string[];
+  timestamp?: string;
 }
 
 interface Session {
@@ -22,8 +23,12 @@ interface Session {
   searches: Search[];
 }
 
-export default function Header() {
-  const [sessions, setSessions] = useState<Session[]>([]);
+interface HeaderProps {
+  sessions: Session[];
+  setSessions: React.Dispatch<React.SetStateAction<Session[]>>;
+}
+
+export default function Header({ sessions, setSessions }: HeaderProps) {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userImage, setUserImage] = useState<string | undefined>(undefined);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
@@ -45,21 +50,6 @@ export default function Header() {
     }
     checkSession();
   }, []);
-
-  useEffect(() => {
-    async function fetchSessions() {
-      try {
-        const response = await fetch("/api/sessions");
-        if (!response.ok) throw new Error("Failed to fetch sessions");
-        const data = await response.json();
-        setSessions(data.sessions);
-      } catch (error) {
-        console.error("Error fetching sessions in Header:", error);
-        setSessions([]);
-      }
-    }
-    if (isSignedIn) fetchSessions();
-  }, [isSignedIn]);
 
   const handleSignOut = async () => {
     try {
@@ -95,11 +85,11 @@ export default function Header() {
         <span className="text-white text-xl font-bold">AI Search</span>
       </Link>
       <nav className="flex space-x-2 sm:space-x-6 text-sm font-semibold items-center">
-      {isSignedIn && (
-        <div className="no-space-x">
-          <SearchesModal sessions={sessions} setSessions={setSessions} />
-        </div>
-      )}
+        {isSignedIn && (
+          <div className="no-space-0">
+            <SearchesModal sessions={sessions} setSessions={setSessions} />
+          </div>
+        )}
         <SignIn
           isSignedIn={isSignedIn}
           onSignOut={handleSignOut}
@@ -109,14 +99,14 @@ export default function Header() {
           openSignUp={openSignUpModal}
         />
         {!isSignedIn && (
-        <SignUp
-          isSignedIn={isSignedIn}
-          onSignOut={handleSignOut}
-          userImage={userImage}
-          isOpen={isSignUpModalOpen}
-          setIsOpen={setIsSignUpModalOpen}
-          openSignIn={openSignInModal}
-        />
+          <SignUp
+            isSignedIn={isSignedIn}
+            onSignOut={handleSignOut}
+            userImage={userImage}
+            isOpen={isSignUpModalOpen}
+            setIsOpen={setIsSignUpModalOpen}
+            openSignIn={openSignInModal}
+          />
         )}
       </nav>
     </header>
