@@ -52,11 +52,11 @@ function IndexContent() {
   }, [sessionId, sessions]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-900 text-center text-white">
+    <div className="min-h-screen flex flex-col text-center bg-black text-white">
       <Header sessions={sessions} setSessions={setSessions} />
       <Searches 
         sessionId={sessionId} 
-        setSessions={setSessions} 
+        setSessions={setSessions}
         selectedSession={selectedSession}
       />
       <footer className="py-4 text-xs">AI can make mistakes. Check your results.</footer>

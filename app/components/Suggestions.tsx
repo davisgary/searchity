@@ -21,7 +21,7 @@ export default function Suggestions({ suggestions, handleSearch, isLoading }: Su
               <button
                 onClick={() => handleSearch(sanitizedSuggestion)}
                 disabled={isLoading}
-                className="text-left w-full text-zinc-400 hover:underline"
+                className="text-left w-full text-neutral-400 hover:underline"
               >
                 {sanitizedSuggestion}
               </button>

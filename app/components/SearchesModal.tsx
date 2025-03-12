@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { MdManageSearch } from "react-icons/md";
+import { PiListMagnifyingGlass } from "react-icons/pi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { FiArrowUpRight } from "react-icons/fi";
 import DeleteModal from './DeleteModal';
@@ -26,9 +26,10 @@ interface Session {
 interface SearchesModalProps {
   sessions: Session[];
   setSessions: React.Dispatch<React.SetStateAction<Session[]>>;
+  className?: string;
 }
 
-export default function SearchesModal({ sessions, setSessions }: SearchesModalProps) {
+export default function SearchesModal({ sessions, setSessions, className }: SearchesModalProps) {
   const [showSessions, setShowSessions] = useState(false);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [showDeleteSingleConfirm, setShowDeleteSingleConfirm] = useState<number | null>(null);
@@ -110,14 +111,14 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
 
   return (
     <>
-      <div className="relative group z-10">
+      <div className={`relative group z-10 ${className || ''}`}>
         <button
           onClick={toggleSessions}
-          className="text-white w-9 h-9 rounded-full transition-all duration-300 hover:bg-zinc-800 flex items-center justify-center"
+          className="flex items-center justify-center text-white w-8 h-8 rounded-full transition-all duration-300 hover:bg-neutral-800 hover:ring-1 hover:ring-neutral-600"
         >
-          <MdManageSearch size={30} />
+          <PiListMagnifyingGlass size={26} />
         </button>
-        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs text-white bg-zinc-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs text-white bg-neutral-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
           Searches
         </span>
       </div>
@@ -129,7 +130,7 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
       )}
       <div
         ref={panelRef}
-        className={`fixed inset-y-0 right-0 w-full max-w-md transform transition-transform duration-300 ease-in-out bg-zinc-900 shadow-xl z-50 flex flex-col ${
+        className={`fixed inset-y-0 right-0 w-full max-w-md transform transition-transform duration-300 ease-in-out bg-neutral-900 shadow-xl z-50 flex flex-col ${
           showSessions ? 'translate-x-0' : 'translate-x-full'
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -137,38 +138,28 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
         <div className="flex-1 overflow-y-auto p-6">
           <button
             onClick={() => setShowSessions(false)}
-            className="absolute top-3 right-5 text-lg text-zinc-100 transition-all duration-300 hover:text-zinc-400"
+            className="absolute top-3 right-5 text-lg text-neutral-100 transition-all duration-300 hover:text-neutral-400"
           >
             ✕
           </button>
-
-          {sessions.length > 0 && (
-            <>
-              <NewSearch
-                onClick={() => setShowSessions(false)}
-                className="mb-5 pl-2 font-normal"
-              />
-              <h2 className="text-xl text-zinc-300 font-normal tracking-wide mb-4">
-                Searches
-              </h2>
-            </>
-          )}
-
           {sessions.length === 0 ? (
-            <NewSearch
+            <button
               onClick={() => setShowSessions(false)}
-              className="text-center text-lg"
-            />
+              className="flex flex-row items-center justify-center mt-5 space-x-2"
+            >
+            <NewSearch className="text-lg" />
+            <span className="text-lg text-white">Start your first search</span>
+            </button>
           ) : (
-            <div className="space-y-6">
+            <div className="mt-5 space-y-6">
               {sortedDates.map((date) => (
                 <div key={date}>
-                  <h3 className="text-zinc-400 font-medium mb-1">{date}</h3>
+                  <h3 className="text-neutral-400 font-medium mb-1">{date}</h3>
                   <ul className="space-y-2">
                     {groupedSessions[date].map((session) => (
                       <li
                         key={session.id}
-                        className="flex items-center justify-between text-left cursor-pointer p-2 rounded transition-all duration-300 hover:bg-zinc-600"
+                        className="flex items-center justify-between text-left cursor-pointer p-2 rounded transition-all duration-300 hover:bg-neutral-700"
                         onClick={() => handleSessionClick(session.id)}
                       >
                         <span className="text-base font-normal flex-1">
@@ -179,7 +170,7 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={(e) => handleOpenInNewTab(session.id, e)}
-                            className="p-1 text-zinc-400 transition-all duration-300 hover:text-blue-500"
+                            className="p-1 text-neutral-400 transition-all duration-300 hover:text-blue-500"
                             title="Open in new tab"
                           >
                             <FiArrowUpRight size={22} />
@@ -189,7 +180,7 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
                               e.stopPropagation();
                               setShowDeleteSingleConfirm(session.id);
                             }}
-                            className="p-1 text-zinc-400 transition-all duration-300 hover:text-red-500"
+                            className="p-1 text-neutral-400 transition-all duration-300 hover:text-red-500"
                             title="Delete session"
                           >
                             <RiDeleteBin6Line size={18} />
@@ -205,10 +196,14 @@ export default function SearchesModal({ sessions, setSessions }: SearchesModalPr
         </div>
         {sessions.length > 0 && (
           <div className="p-6">
-            <div className="flex justify-end">
+            <div className="flex justify-between items-center">
+              <NewSearch
+                onClick={() => setShowSessions(false)}
+                className="font-normal"
+              />
               <button
                 onClick={() => setShowDeleteAllConfirm(true)}
-                className="text-sm text-zinc-400 transition-all duration-300 hover:text-red-500"
+                className="text-sm text-neutral-400 transition-all duration-300 hover:text-red-500"
               >
                 Delete All
               </button>

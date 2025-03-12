@@ -6,6 +6,7 @@ import { TfiWorld } from "react-icons/tfi";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 import SearchesModal from "./SearchesModal";
+import NewSearch from "./NewSearch";
 
 interface Search {
   query: string;
@@ -84,11 +85,19 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
         <TfiWorld className="w-8 h-8 text-white" />
         <span className="text-white text-xl font-bold">AI Search</span>
       </Link>
-      <nav className="flex space-x-2 sm:space-x-6 text-sm font-semibold items-center">
+      <nav className="flex space-x-3 sm:space-x-4 text-sm font-semibold items-center">
         {isSignedIn && (
-          <div className="no-space-0">
-            <SearchesModal sessions={sessions} setSessions={setSessions} />
-          </div>
+          <>
+            <NewSearch
+              onClick={() => {}}
+              className="text-white hover:text-neutral-300 transition-colors duration-300"
+            />
+            <SearchesModal
+                sessions={sessions}
+                setSessions={setSessions}
+                className="text-white hover:text-neutral-300 transition-colors duration-300 mr-5"
+            />
+          </>
         )}
         <SignIn
           isSignedIn={isSignedIn}

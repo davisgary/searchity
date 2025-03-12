@@ -61,7 +61,7 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
 
   return (
     <div className="pt-4 w-full text-left">
-      <p className="text-left text-xs tracking-widest text-zinc-300 mx-2">
+      <p className="text-left text-xs tracking-widest text-neutral-300 mx-2">
         Trending
       </p>
       <div className="overflow-hidden whitespace-nowrap py-2" ref={trendsContainerRef}>

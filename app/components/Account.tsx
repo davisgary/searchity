@@ -52,7 +52,7 @@ export default function Account({ isSignedIn, onSignOut, userImage }: AccountPro
       <div className="relative group">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="relative w-8 h-8 rounded-full overflow-hidden focus:outline-none transition-all duration-300 hover:ring-2 hover:ring-neutral-600"
+          className="relative w-8 h-8 rounded-full overflow-hidden focus:outline-none transition-all duration-300 hover:ring-1 hover:ring-neutral-600"
         >
           <img
             src={userImage || "/meta.png"}
