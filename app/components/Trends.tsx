@@ -61,7 +61,7 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
 
   return (
     <div className="pt-4 w-full text-left">
-      <p className="text-left text-xs tracking-widest text-neutral-300 mx-2">
+      <p className="text-left text-xs tracking-widest text-zinc-300 mx-2">
         Trending
       </p>
       <div className="overflow-hidden whitespace-nowrap py-2" ref={trendsContainerRef}>
@@ -70,7 +70,7 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
             <span key={index} className="mx-4">
               <button
                 onClick={() => handleSearch(trend.term)}
-                className="text-normal text-neutral-400 rounded-2xl border border-white/20 px-3 focus:outline-none focus:ring-0 active:bg-transparent transition-all duration-300 hover:scale-105"
+                className="text-normal leading-normal text-white/70 rounded-2xl border border-white/40 px-3 focus:outline-none focus:ring-0 active:bg-transparent transition-all duration-300 hover:scale-105"
               >
                 {trend.term}
               </button>

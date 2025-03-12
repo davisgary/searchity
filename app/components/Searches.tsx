@@ -6,6 +6,7 @@ import Results from "./Results";
 import Loading from "./Loading";
 import SearchBar from "./SearchBar";
 import Trends from "./Trends";
+import Suggestions from "./Suggestions";
 import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
 
@@ -28,9 +29,10 @@ interface Session {
 interface SearchesProps {
   sessionId: string | null;
   setSessions: React.Dispatch<React.SetStateAction<Session[]>>;
+  selectedSession: Session | null;
 }
 
-export default function Searches({ sessionId: initialSessionId, setSessions }: SearchesProps): ReactNode {
+export default function Searches({ sessionId: initialSessionId, setSessions, selectedSession }: SearchesProps): ReactNode {
   const [displayedSearches, setDisplayedSearches] = useState<Search[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,22 +40,28 @@ export default function Searches({ sessionId: initialSessionId, setSessions }: S
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchSession() {
-      if (!currentSessionId) {
-        setDisplayedSearches([]);
-        return;
-      }
+    if (selectedSession) {
+      setDisplayedSearches(selectedSession.searches || []);
+      setCurrentSessionId(selectedSession.id.toString());
+    } else if (!initialSessionId) {
+      setDisplayedSearches([]);
+      setCurrentSessionId(null);
+    }
+  }, [selectedSession, initialSessionId]);
 
+  useEffect(() => {
+    async function fetchSession() {
+      if (!initialSessionId || selectedSession) return;
       try {
         console.time("Session Fetch");
         const response = await fetch("/api/sessions");
         if (!response.ok) throw new Error("Failed to fetch sessions");
         const data = await response.json();
-        const selectedSession = data.sessions.find((s: any) => s.id === parseInt(currentSessionId));
-        console.log("Fetched session for sessionId", currentSessionId, ":", selectedSession);
-        if (selectedSession) {
-          setDisplayedSearches(selectedSession.searches);
+        const session = data.sessions.find((s: any) => s.id === parseInt(initialSessionId));
+        if (session) {
+          setDisplayedSearches(session.searches);
           setSessions(data.sessions);
+          setCurrentSessionId(initialSessionId);
         }
         console.timeEnd("Session Fetch");
       } catch (error) {
@@ -61,14 +69,9 @@ export default function Searches({ sessionId: initialSessionId, setSessions }: S
         setError("Failed to load session");
       }
     }
-    if (currentSessionId) fetchSession();
-  }, [currentSessionId, setSessions]);
+    if (initialSessionId && !selectedSession) fetchSession();
+  }, [initialSessionId, setSessions, selectedSession]);
 
-  const startNewSession = useCallback(() => {
-    setCurrentSessionId(null);
-    setDisplayedSearches([]);
-    router.push("/");
-  }, [router]);
 
   const handleSearch = useCallback(
     async (query: string) => {
@@ -149,62 +152,61 @@ export default function Searches({ sessionId: initialSessionId, setSessions }: S
           }
         }
         console.timeEnd("Stream Processing");
-
-        async function addToSession(search: Search) {
-          try {
-            console.time("Add-to-Session API");
-            const addResponse = await fetch("/api/sessions/add-to", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ sessionId: currentSessionId ? parseInt(currentSessionId) : null, ...search }),
-            });
-            const addData = await addResponse.json();
-            console.timeEnd("Add-to-Session API");
-
-            if (!addData.success) {
-              if (addData.limitReached) setError(addData.message);
-              else throw new Error(`Add-to-session failed: ${addData.error || "Unknown error"}`);
-              return;
-            }
-
-            if (addData.isNewSession || !currentSessionId) {
-              console.log("New session created with ID:", addData.sessionId);
-              setCurrentSessionId(addData.sessionId);
-              router.push(`/?sessionId=${addData.sessionId}`);
-              setSessions((prev) => {
-                const newSession: Session = {
-                  id: addData.sessionId,
-                  user_id: "current_user_id",
-                  created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
-                  searches: addData.updatedSearches,
-                };
-                return [newSession, ...prev.filter((s) => s.id !== newSession.id)];
-              });
-            } else {
-              setDisplayedSearches(addData.updatedSearches);
-              setSessions((prev) => {
-                const updatedSession: Session = {
-                  id: parseInt(currentSessionId!),
-                  user_id: "current_user_id",
-                  created_at: prev.find((s) => s.id === parseInt(currentSessionId!))?.created_at || new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
-                  searches: addData.updatedSearches,
-                };
-                return prev.map((s) => (s.id === updatedSession.id ? updatedSession : s));
-              });
-            }
-          } catch (error) {
-            console.error("Add-to-session error:", error);
-            setError("Failed to add search to session");
-            setDisplayedSearches((prev) => prev.filter((s) => s.query !== search.query));
-          }
-        }
       } catch (error) {
         console.error("Search error:", error);
         setError("Search failed");
       } finally {
         setIsLoading(false);
+      }
+
+      async function addToSession(search: Search) {
+        try {
+          console.time("Add-to-Session API");
+          const addResponse = await fetch("/api/sessions/add-to", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sessionId: currentSessionId ? parseInt(currentSessionId) : null, ...search }),
+          });
+          const addData = await addResponse.json();
+          console.timeEnd("Add-to-Session API");
+
+          if (!addData.success) {
+            if (addData.limitReached) setError(addData.message);
+            else throw new Error(`Add-to-session failed: ${addData.error || "Unknown error"}`);
+            return;
+          }
+
+          if (addData.isNewSession || !currentSessionId) {
+            setCurrentSessionId(addData.sessionId);
+            router.push(`/?sessionId=${addData.sessionId}`);
+            setSessions((prev) => {
+              const newSession: Session = {
+                id: addData.sessionId,
+                user_id: "current_user_id",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                searches: addData.updatedSearches,
+              };
+              return [newSession, ...prev.filter((s) => s.id !== newSession.id)];
+            });
+          } else {
+            setDisplayedSearches(addData.updatedSearches);
+            setSessions((prev) => {
+              const updatedSession: Session = {
+                id: parseInt(currentSessionId!),
+                user_id: "current_user_id",
+                created_at: prev.find((s) => s.id === parseInt(currentSessionId!))?.created_at || new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                searches: addData.updatedSearches,
+              };
+              return prev.map((s) => (s.id === updatedSession.id ? updatedSession : s));
+            });
+          }
+        } catch (error) {
+          console.error("Add-to-session error:", error);
+          setError("Failed to add search to session");
+          setDisplayedSearches((prev) => prev.filter((s) => s.query !== search.query));
+        }
       }
     },
     [displayedSearches, currentSessionId, router, setSessions]
@@ -241,36 +243,11 @@ export default function Searches({ sessionId: initialSessionId, setSessions }: S
             </p>
           )}
           {search.suggestions.length > 0 && (
-            <div>
-              <h4 className="text-lg font-medium">Follow-Up Suggestions</h4>
-              <ul className="text-left mt-2 space-y-1">
-                {search.suggestions.slice(0, 5).map((suggestion, i) => {
-                  const sanitizedSuggestion = suggestion
-                    .replace(/^[-\s]+/, "")
-                    .replace(/"/g, "")
-                    .trim();
-                  return (
-                    <li key={i}>
-                      <button
-                        onClick={() => handleSearch(sanitizedSuggestion)}
-                        disabled={isLoading}
-                        className="text-left w-full text-neutral-400 hover:underline"
-                      >
-                        {sanitizedSuggestion}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-          {search.results.length > 0 && (
-            <button
-              onClick={startNewSession}
-              className="mt-4 text-normal text-neutral-400 rounded-2xl border border-white/20 px-3 focus:outline-none focus:ring-0 active:bg-transparent transition-all duration-300 hover:scale-105"
-            >
-              New Search
-            </button>
+            <Suggestions
+              suggestions={search.suggestions}
+              handleSearch={handleSearch}
+              isLoading={isLoading}
+            />
           )}
         </div>
       ))}

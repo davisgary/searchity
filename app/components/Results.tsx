@@ -89,10 +89,10 @@ const ResultImage: React.FC<{ result: ResultItem }> = ({ result }) => {
             <img
               src={result.image}
               alt={result.title}
-              className={`w-full h-full ${isSmallImage ? 'object-none bg-neutral-100' : 'object-cover object-[center_20%]'}`}
+              className={`w-full h-full ${isSmallImage ? 'object-none bg-zinc-100' : 'object-cover object-[center_20%]'}`}
               onError={(e) => {
                 e.currentTarget.src = `https://www.google.com/s2/favicons?sz=256&domain=${new URL(result.link).hostname}`;
-                e.currentTarget.classList.add("object-none", "bg-neutral-100");
+                e.currentTarget.classList.add("object-none", "bg-zinc-100");
               }}
             />
           </div>

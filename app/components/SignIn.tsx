@@ -52,7 +52,7 @@ export default function SignIn({
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 text-neutral-400 font-semibold rounded-full transition-all duration-300 hover:text-neutral-100 hover:bg-neutral-800 hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2 text-zinc-400 font-semibold rounded-full transition-all duration-300 hover:text-zinc-100 hover:bg-zinc-800 hover:scale-105"
         >
           <span>Sign In</span>
         </button>
@@ -62,10 +62,10 @@ export default function SignIn({
           className="fixed inset-2 bg-black bg-opacity-50 flex items-center justify-center z-50 lg:pb-32"
           onClick={handleOverlayClick}
         >
-          <div className="bg-neutral-800 px-8 sm:px-14 py-5 rounded-lg shadow-xl transform transition-all duration-300">
+          <div className="bg-zinc-800 px-8 sm:px-14 py-5 rounded-lg shadow-xl transform transition-all duration-300">
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-3 right-5 text-neutral-100 text-lg transform transition-all duration-300 hover:text-neutral-500"
+              className="absolute top-3 right-5 text-zinc-100 text-lg transform transition-all duration-300 hover:text-zinc-500"
             >
               ✕
             </button>
@@ -75,30 +75,30 @@ export default function SignIn({
             <div className="flex flex-col gap-4 mb-8 tracking-wide">
               <button
                 onClick={handleGoogleSignIn}
-                className="flex items-center gap-6 sm:gap-3 px-4 py-3 text-white font-semibold rounded-full hover:bg-neutral-700 hover:scale-105 transition duration-300 border border-neutral-400"
+                className="flex items-center gap-6 sm:gap-3 px-4 py-3 text-white font-semibold rounded-full hover:bg-zinc-700 hover:scale-105 transition duration-300 border border-zinc-400"
               >
                 <FcGoogle size={28} />
                 <span className="px-10 sm:px-14">Sign in with Google</span>
               </button>
               <button
                 onClick={handleFacebookSignIn}
-                className="flex items-center gap-6 sm:gap-3 px-4 py-3 mb-5 text-white font-semibold rounded-full hover:bg-neutral-700 hover:scale-105 transition duration-300 border border-neutral-400"
+                className="flex items-center gap-6 sm:gap-3 px-4 py-3 mb-5 text-white font-semibold rounded-full hover:bg-zinc-700 hover:scale-105 transition duration-300 border border-zinc-400"
               >
                 <FaFacebook size={28} className="text-blue-600" />
                 <span className="px-10 sm:px-14">Sign in with Facebook</span>
               </button>
             </div>
             <div className="text-center space-y-2">
-              <p className="text-neutral-400">
+              <p className="text-zinc-400">
                 Don't have an account?{" "}
                 <button
                   onClick={handleSignUpClick}
-                  className="text-neutral-100 hover:text-neutral-300"
+                  className="text-zinc-100 hover:text-zinc-300"
                 >
                   Sign Up
                 </button>
               </p>
-              <Link href="/" className="block text-neutral-100 hover:text-neutral-300">
+              <Link href="/" className="block text-zinc-100 hover:text-zinc-300">
                 Terms and Service
               </Link>
             </div>
