@@ -61,7 +61,7 @@ export default function SignIn({
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 text-neutral-400 font-semibold rounded-full transition-all duration-300 hover:text-neutral-100 hover:bg-neutral-800 hover:scale-105"
+          className="flex items-center mx-3 px-4 py-2 text-neutral-400 font-semibold rounded-full transition-all duration-300 hover:text-neutral-100 hover:bg-neutral-800 hover:scale-105"
         >
           <span>Sign In</span>
         </button>

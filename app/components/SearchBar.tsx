@@ -39,8 +39,8 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-black w-full pt-4">
-      <div className="w-full relative flex items-center bg-neutral-900 rounded-2xl border-2 border-white/20 px-5 pr-3">
+    <div className="sticky top-0 z-10 bg-neutral-900 w-full pt-4">
+      <div className="w-full relative flex items-center bg-neutral-800 rounded-2xl border-2 border-white/20 px-5 pr-3">
         <textarea
           ref={textareaRef}
           value={input}
@@ -52,14 +52,14 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
             }
           }}
           placeholder="Enter your search..."
-          className="w-full bg-neutral-900 text-lg text-white placeholder-neutral-300 focus:outline-none resize-none overflow-hidden py-4 pr-2"
+          className="w-full bg-neutral-800 text-lg text-white placeholder-neutral-300 focus:outline-none resize-none overflow-hidden py-4 pr-2"
           rows={1}
           style={{ minHeight: "65px", maxHeight: "200px", paddingTop: "19px", paddingBottom: "18px" }}
         />
         <button
           onClick={onSearch}
           disabled={isLoading || !isInputValid}
-          className="bg-neutral-950 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+          className="bg-neutral-900 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
           aria-label="Search"
         >
           <TfiWorld

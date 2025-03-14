@@ -130,7 +130,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
       )}
       <div
         ref={panelRef}
-        className={`fixed inset-y-0 right-0 w-full max-w-md transform transition-transform duration-300 ease-in-out bg-neutral-900 shadow-xl z-50 flex flex-col ${
+        className={`fixed inset-y-0 right-0 sm:w-full max-w-md transform transition-transform duration-300 ease-in-out bg-neutral-800 shadow-xl z-50 flex flex-col ${
           showSessions ? 'translate-x-0' : 'translate-x-full'
         }`}
         onClick={(e) => e.stopPropagation()}

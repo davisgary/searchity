@@ -85,7 +85,7 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
         <TfiWorld className="w-8 h-8 text-white" />
         <span className="text-white text-xl font-bold">AI Search</span>
       </Link>
-      <nav className="flex space-x-3 sm:space-x-4 text-sm font-semibold items-center">
+      <nav className="flex text-sm font-semibold items-center">
         {isSignedIn && (
           <>
             <NewSearch
@@ -95,7 +95,7 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
             <SearchesModal
                 sessions={sessions}
                 setSessions={setSessions}
-                className="text-white hover:text-neutral-300 transition-colors duration-300 mr-5"
+                className="text-white hover:text-neutral-300 transition-colors duration-300 mx-4"
             />
           </>
         )}
