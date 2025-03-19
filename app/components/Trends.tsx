@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { PiTrendUpBold } from "react-icons/pi";
 
 type Trend = {
   term: string;
@@ -61,8 +62,9 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
 
   return (
     <div className="pt-4 w-full text-left">
-      <p className="text-left text-xs tracking-widest text-neutral-300 mx-2">
+      <p className="flex items-center text-left text-xs tracking-widest text-neutral-300 mx-2">
         Trending
+        <PiTrendUpBold size={16} className="mx-1" />
       </p>
       <div className="overflow-hidden whitespace-nowrap py-2" ref={trendsContainerRef}>
         <div className="inline-block">

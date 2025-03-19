@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { TfiWorld } from "react-icons/tfi";
+import { PiMagnifyingGlassBold } from "react-icons/pi";
 
 interface SearchBarProps {
   handleSearch: (query: string) => void;
@@ -62,9 +62,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
           className="bg-neutral-900 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
           aria-label="Search"
         >
-          <TfiWorld
-            className={`w-6 h-6 ${isLoading ? "animate-spin" : ""} ${isInputValid ? "opacity-100" : "opacity-60"}`}
-          />
+          <PiMagnifyingGlassBold className={`w-6 h-6 ${isLoading ? "animate-pulse" : ""} ${isInputValid ? "opacity-100" : "opacity-80"}`} />
         </button>
       </div>
     </div>

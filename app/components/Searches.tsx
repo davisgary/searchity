@@ -221,7 +221,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
 
   return (
     <div className="w-full max-w-3xl mx-auto flex flex-col items-center justify-start flex-grow px-5 py-16">
-      <h1 className="pb-2 font-bold tracking-tight text-3xl sm:text-4xl md:text-5xl">
+      <h1 className="pb-2 font-semibold tracking-tight text-3xl sm:text-4xl md:text-5xl">
         Search the Web with AI
       </h1>
       <SearchBar handleSearch={handleSearch} isLoading={isLoading} />

@@ -88,14 +88,14 @@ export default function SignUp({
         <div
           ref={modalRef}
           tabIndex={-1}
-          className={`bg-neutral-800 p-5 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out ${
+          className={`bg-neutral-800 p-5 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out focus:outline-none ${
             isOpen ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
           }`}
         >
           <div className="relative group w-fit ml-auto">
             <button
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center text-lg text-neutral-100 w-8 h-8 rounded-full transition-all duration-300 hover:text-neutral-200 hover:bg-neutral-700 focus:text-neutral-400"
+              className="flex items-center justify-center text-lg text-white/70 w-8 h-8 rounded-full transition-all duration-300 hover:text-white hover:text-neutral-200 hover:bg-neutral-700 focus:text-neutral-400"
               aria-label="Close modal"
             >
               ✕

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { CgLogOut } from "react-icons/cg";
-import { TiUserDeleteOutline } from "react-icons/ti";
+import { PiSignOutBold } from "react-icons/pi";
+import { PiUserMinusBold } from "react-icons/pi";
 
 interface DropdownProps {
   onSignOut: () => void;
@@ -45,14 +45,14 @@ export default function Dropdown({ onSignOut, onDeleteConfirm }: DropdownProps) 
         onClick={handleSignOutClick}
         className="w-full text-left px-5 py-4 text-neutral-100 rounded-t-md transition-all duration-300 hover:bg-neutral-700 flex items-center space-x-2"
       >
-        <CgLogOut size={18} />
+        <PiSignOutBold size={18} />
         <span>Sign Out</span>
       </button>
       <button
         onClick={onDeleteConfirm}
         className="w-full text-left px-5 py-4 text-red-500 rounded-b-md border-t border-neutral-600 transition-all duration-300 hover:bg-neutral-700 flex items-center space-x-2"
       >
-        <TiUserDeleteOutline size={18} />
+        <PiUserMinusBold size={18} />
         <span>Delete Account</span>
       </button>
     </div>

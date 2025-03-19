@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { TfiWorld } from "react-icons/tfi";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 import SearchesModal from "./SearchesModal";
@@ -81,9 +80,8 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
 
   return (
     <header className="w-full mx-auto flex items-center justify-between px-6 md:px-12 py-4">
-      <Link href="/" className="flex items-center space-x-2">
-        <TfiWorld className="w-8 h-8 text-white" />
-        <span className="text-white text-xl font-bold">AI Search</span>
+      <Link href="/">
+        <span className="text-white text-xl font-semibold">Search</span>
       </Link>
       <nav className="flex text-sm font-semibold items-center">
         {isSignedIn && (

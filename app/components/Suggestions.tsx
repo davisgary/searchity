@@ -1,5 +1,7 @@
 "use client";
 
+import { PiArrowUpRightBold } from "react-icons/pi";
+
 interface SuggestionsProps {
   suggestions: string[];
   handleSearch: (query: string) => Promise<void>;
@@ -21,9 +23,10 @@ export default function Suggestions({ suggestions, handleSearch, isLoading }: Su
               <button
                 onClick={() => handleSearch(sanitizedSuggestion)}
                 disabled={isLoading}
-                className="text-left w-full text-neutral-400 hover:underline"
+                className="flex items-center text-left w-full text-neutral-400 hover:underline"
               >
                 {sanitizedSuggestion}
+                <PiArrowUpRightBold className="ml-1" />
               </button>
             </li>
           );
