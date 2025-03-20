@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Summary from "./Summary";
 import Results from "./Results";
 import Loading from "./Loading";
@@ -34,10 +34,13 @@ interface SearchesProps {
 
 export default function Searches({ sessionId: initialSessionId, setSessions, selectedSession }: SearchesProps): ReactNode {
   const [displayedSearches, setDisplayedSearches] = useState<Search[]>([]);
+  const [currentSummary, setCurrentSummary] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(initialSessionId);
   const router = useRouter();
+  const streamingRef = useRef<HTMLDivElement>(null);
+  const latestSearchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (selectedSession) {
@@ -72,7 +75,6 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
     if (initialSessionId && !selectedSession) fetchSession();
   }, [initialSessionId, setSessions, selectedSession]);
 
-
   const handleSearch = useCallback(
     async (query: string) => {
       const trimmedQuery = query.trim();
@@ -85,6 +87,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
 
       setIsLoading(true);
       setError(null);
+      setCurrentSummary("");
 
       try {
         console.time("Search API");
@@ -105,7 +108,6 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
         let finalResults: any[] = [];
         let finalSuggestions: string[] = [];
         let newSearch: Search | null = null;
-        let isFinalProcessed = false;
 
         console.time("Stream Processing");
         while (true) {
@@ -122,31 +124,20 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
 
             if (parsed.token !== undefined) {
               summary += parsed.token;
-              setDisplayedSearches((prev) => {
-                const existing = prev.find((s) => s.query === trimmedQuery);
-                if (existing) {
-                  return prev.map((s) =>
-                    s.query === trimmedQuery ? { ...s, summary } : s
-                  );
-                }
-                return [...prev, { query: trimmedQuery, summary, results: [], suggestions: [] }];
-              });
+              setCurrentSummary(summary);
             }
 
-            if (parsed.final && !isFinalProcessed) {
+            if (parsed.final) {
               finalResults = parsed.searchResults || [];
               finalSuggestions = parsed.suggestions || [];
-              newSearch = { query: trimmedQuery, summary, results: finalResults, suggestions: finalSuggestions, timestamp: new Date().toISOString() };
-              setDisplayedSearches((prev) => {
-                const existing = prev.find((s) => s.query === trimmedQuery);
-                if (existing) {
-                  return prev.map((s) =>
-                    s.query === trimmedQuery ? { ...s, results: finalResults, suggestions: finalSuggestions } : s
-                  );
-                }
-                return [...prev, newSearch!];
-              });
-              isFinalProcessed = true;
+              newSearch = {
+                query: trimmedQuery,
+                summary,
+                results: finalResults,
+                suggestions: finalSuggestions,
+                timestamp: new Date().toISOString(),
+              };
+              setDisplayedSearches((prev) => [...prev, newSearch!]);
               await addToSession(newSearch);
             }
           }
@@ -213,11 +204,26 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
   );
 
   useEffect(() => {
-    if (displayedSearches.length) {
-      const lastSearch = document.getElementById(`search-${displayedSearches.length - 1}`);
-      lastSearch?.scrollIntoView({ behavior: "smooth" });
+    if (isLoading && currentSummary && streamingRef.current) {
+      const timeout = setTimeout(() => {
+        if (streamingRef.current) {
+          streamingRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+      return () => clearTimeout(timeout);
     }
-  }, [displayedSearches]);
+  }, [currentSummary, isLoading]);
+
+  useEffect(() => {
+    if (displayedSearches.length && !isLoading && latestSearchRef.current) {
+      const timeout = setTimeout(() => {
+        if (latestSearchRef.current) {
+          latestSearchRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [displayedSearches, isLoading]);
 
   return (
     <div className="w-full max-w-3xl mx-auto flex flex-col items-center justify-start flex-grow px-5 py-16">
@@ -234,6 +240,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
           key={`${currentSessionId || "temp"}-${index}`}
           id={`search-${index}`}
           className="mt-4 w-full text-left"
+          ref={index === displayedSearches.length - 1 ? latestSearchRef : null}
         >
           <Summary summary={search.summary} />
           {search.results.length > 0 && <Results results={search.results} />}
@@ -252,7 +259,8 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
         </div>
       ))}
       {isLoading && (
-        <div className="mt-4 w-full text-left">
+        <div ref={streamingRef} className="mt-4 w-full text-left">
+          {currentSummary && <Summary summary={currentSummary} />}
           <Loading isLoading={isLoading} />
         </div>
       )}

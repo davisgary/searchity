@@ -81,7 +81,7 @@ export default function SignIn({
        <div
           ref={modalRef}
           tabIndex={-1}
-          className={`bg-neutral-800 p-5 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out focus:outline-none ${
+          className={`bg-neutral-800 p-5 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out focus:!outline-[0] ${
             isOpen ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
           }`}
         >

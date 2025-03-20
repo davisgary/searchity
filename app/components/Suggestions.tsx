@@ -1,6 +1,6 @@
 "use client";
 
-import { PiArrowUpRightBold } from "react-icons/pi";
+import { PiMagnifyingGlassPlusBold } from "react-icons/pi";
 
 interface SuggestionsProps {
   suggestions: string[];
@@ -11,7 +11,7 @@ interface SuggestionsProps {
 export default function Suggestions({ suggestions, handleSearch, isLoading }: SuggestionsProps) {
   return (
     <div>
-      <h4 className="text-lg font-medium">Follow-Up Suggestions</h4>
+      <p className="text-lg font-medium">Follow-Up Suggestions</p>
       <ul className="text-left mt-2 space-y-1">
         {suggestions.slice(0, 5).map((suggestion, i) => {
           const sanitizedSuggestion = suggestion
@@ -23,10 +23,17 @@ export default function Suggestions({ suggestions, handleSearch, isLoading }: Su
               <button
                 onClick={() => handleSearch(sanitizedSuggestion)}
                 disabled={isLoading}
-                className="flex items-center text-left w-full text-neutral-400 hover:underline"
+                className="text-neutral-400 hover:text-white transition-colors duration-300 group w-full text-left"
               >
-                {sanitizedSuggestion}
-                <PiArrowUpRightBold className="ml-1" />
+                <span className="inline-block group-hover:scale-105 transition-transform duration-300 max-w-full">
+                  <span
+                    className="inline-block max-w-[calc(100%-1.25rem)] align-middle truncate"
+                    title={sanitizedSuggestion}
+                  >
+                    {sanitizedSuggestion}
+                  </span>
+                  <PiMagnifyingGlassPlusBold className="inline w-4 h-4 ml-1 align-middle" />
+                </span>
               </button>
             </li>
           );

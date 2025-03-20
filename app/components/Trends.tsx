@@ -72,7 +72,7 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
             <span key={index} className="mx-4">
               <button
                 onClick={() => handleSearch(trend.term)}
-                className="text-normal leading-normal text-white/70 rounded-2xl border border-white/40 px-3 focus:outline-none focus:ring-0 active:bg-transparent transition-all duration-300 hover:scale-105"
+                className="text-normal leading-normal text-white/70 rounded-2xl border border-white/40 px-3 focus:animate-pulse active:bg-transparent transition-all duration-300 hover:border-white/60 hover:scale-105"
               >
                 {trend.term}
               </button>

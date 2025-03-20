@@ -1,6 +1,6 @@
 // @ts-ignore
 import Slider from 'react-slick';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
@@ -17,6 +17,7 @@ type ResultsProps = {
 
 const Results: React.FC<ResultsProps> = ({ results }) => {
   const filteredResults = results.filter((result) => result.image);
+  const sliderRef = useRef<Slider>(null);
 
   if (!filteredResults.length) return null;
 
@@ -33,6 +34,15 @@ const Results: React.FC<ResultsProps> = ({ results }) => {
     autoplay: true,
     autoplaySpeed: 3000,
     arrows: true,
+    focusOnSelect: false,
+    afterChange: () => {
+      updateFocusableElements();
+    },
+    beforeChange: () => {
+      document.querySelectorAll('.slick-slide a').forEach((el) => {
+        el.setAttribute('tabIndex', '-1');
+      });
+    },
     responsive: [
       {
         breakpoint: 1024,
@@ -53,9 +63,31 @@ const Results: React.FC<ResultsProps> = ({ results }) => {
     ],
   };
 
+  const updateFocusableElements = () => {
+    document.querySelectorAll('.slick-slide').forEach((slide) => {
+      const link = slide.querySelector('a');
+      if (!link) return;
+
+      const isHidden = slide.getAttribute('aria-hidden') === 'true';
+      const isCloned = slide.classList.contains('slick-cloned');
+
+      if (isHidden || isCloned) {
+        link.setAttribute('tabIndex', '-1');
+      } else {
+        link.setAttribute('tabIndex', '0');
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (sliderRef.current) {
+      updateFocusableElements();
+    }
+  }, [filteredResults]);
+
   return (
     <div className="mt-5 text-left overflow-hidden">
-      <Slider {...settings}>
+      <Slider ref={sliderRef} {...settings} aria-label="Search results carousel">
         {filteredResults.map((result, index) => (
           <ResultImage key={index} result={result} />
         ))}
@@ -83,8 +115,16 @@ const ResultImage: React.FC<{ result: ResultItem }> = ({ result }) => {
     <div className="p-2">
       <div
         className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105"
-        style={{ height: '205px', display: 'flex', flexDirection: 'column' }}>
-        <a href={result.link} target="_blank" rel="noopener noreferrer" className="block h-full">
+        style={{ height: '205px', display: 'flex', flexDirection: 'column' }}
+      >
+        <a
+          href={result.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block h-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-label={`${result.title}: ${result.snippet}`}
+          tabIndex={-1}
+        >
           <div style={{ height: '85px', overflow: 'hidden' }}>
             <img
               src={result.image}
@@ -92,14 +132,14 @@ const ResultImage: React.FC<{ result: ResultItem }> = ({ result }) => {
               className={`w-full h-full ${isSmallImage ? 'object-none bg-neutral-100' : 'object-cover object-[center_20%]'}`}
               onError={(e) => {
                 e.currentTarget.src = `https://www.google.com/s2/favicons?sz=256&domain=${new URL(result.link).hostname}`;
-                e.currentTarget.classList.add("object-none", "bg-neutral-100");
+                e.currentTarget.classList.add('object-none', 'bg-neutral-100');
               }}
             />
           </div>
           <div className="bg-white p-2">
-            <h4 className="text-black font-bold mb-1" style={{ fontSize: '14px', lineHeight: '1.2' }}>
+            <p className="text-black font-bold mb-1" style={{ fontSize: '14px', lineHeight: '1.2' }}>
               {result.title}
-            </h4>
+            </p>
             <p className="text-xs text-black">{result.snippet}</p>
           </div>
         </a>
