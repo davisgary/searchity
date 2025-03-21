@@ -169,7 +169,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
             <div className="mt-5 space-y-6">
               {sortedDates.map((date) => (
                 <div key={date}>
-                  <h3 className="text-neutral-400 font-medium mb-1">{date}</h3>
+                  <h3 className="text-white/50 font-medium mb-1">{date}</h3>
                   <ul className="space-y-2">
                     {groupedSessions[date].map((session) => (
                       <li
@@ -186,7 +186,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
                         <div className="relative group">
                             <button
                               onClick={(e) => handleOpenInNewTab(session.id, e)}
-                              className="p-1 text-neutral-400 transition-all duration-300 hover:text-blue-600"
+                              className="p-1 text-white/70 transition-all duration-300 hover:text-sky-600"
                               aria-label="Open in new tab"
                             >
                               <PiArrowSquareOutBold size={20} />
@@ -201,7 +201,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
                               e.stopPropagation();
                               setShowDeleteSingleConfirm(session.id);
                             }}
-                            className="p-1 text-neutral-400 transition-all duration-300 hover:text-red-600"
+                            className="p-1 text-white/70 transition-all duration-300 hover:text-red-600"
                             aria-label="Delete session"
                           >
                             <PiMinusCircleBold size={20} />
@@ -224,7 +224,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
             <div className="relative group">
               <button
                 onClick={() => setShowDeleteAllConfirm(true)}
-                className="text-sm text-neutral-400 transition-all duration-300 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 focus:text-red-500"
+                className="text-sm text-white/70 transition-all duration-300 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 focus:text-red-500"
                 aria-label="Confirm delete all items"
               >
                 Delete All

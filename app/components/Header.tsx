@@ -33,10 +33,12 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
   const [userImage, setUserImage] = useState<string | undefined>(undefined);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function checkSession() {
       try {
+        setIsLoading(true);
         const response = await fetch("/api/auth/check-session");
         if (!response.ok) throw new Error("Failed to check session");
         const data = await response.json();
@@ -46,6 +48,8 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
         console.error("Error checking session:", error);
         setIsSignedIn(false);
         setUserImage(undefined);
+      } finally {
+        setIsLoading(false);
       }
     }
     checkSession();
@@ -79,41 +83,47 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
   };
 
   return (
-    <header className="w-full mx-auto flex items-center justify-between px-6 md:px-12 py-4">
+    <header className="w-full mx-auto flex items-center justify-between px-6 md:px-12 py-4" style={{ height: '64px' }}>
       <Link href="/">
         <span className="text-white text-xl font-semibold">Search</span>
       </Link>
       <nav className="flex text-sm font-semibold items-center">
-        {isSignedIn && (
+        {isLoading ? (
+          null
+        ) : (
           <>
-            <NewSearch
-              onClick={() => {}}
-              className="text-white hover:text-neutral-300 transition-colors duration-300"
+            {isSignedIn && (
+              <>
+                <NewSearch
+                  onClick={() => {}}
+                  className="text-white hover:text-neutral-300 transition-colors duration-300"
+                />
+                <SearchesModal
+                  sessions={sessions}
+                  setSessions={setSessions}
+                  className="text-white hover:text-neutral-300 transition-colors duration-300 mx-4"
+                />
+              </>
+            )}
+            <SignIn
+              isSignedIn={isSignedIn}
+              onSignOut={handleSignOut}
+              userImage={userImage}
+              isOpen={isSignInModalOpen}
+              setIsOpen={setIsSignInModalOpen}
+              openSignUp={openSignUpModal}
             />
-            <SearchesModal
-                sessions={sessions}
-                setSessions={setSessions}
-                className="text-white hover:text-neutral-300 transition-colors duration-300 mx-4"
-            />
+            {!isSignedIn && (
+              <SignUp
+                isSignedIn={isSignedIn}
+                onSignOut={handleSignOut}
+                userImage={userImage}
+                isOpen={isSignUpModalOpen}
+                setIsOpen={setIsSignUpModalOpen}
+                openSignIn={openSignInModal}
+              />
+            )}
           </>
-        )}
-        <SignIn
-          isSignedIn={isSignedIn}
-          onSignOut={handleSignOut}
-          userImage={userImage}
-          isOpen={isSignInModalOpen}
-          setIsOpen={setIsSignInModalOpen}
-          openSignUp={openSignUpModal}
-        />
-        {!isSignedIn && (
-          <SignUp
-            isSignedIn={isSignedIn}
-            onSignOut={handleSignOut}
-            userImage={userImage}
-            isOpen={isSignUpModalOpen}
-            setIsOpen={setIsSignUpModalOpen}
-            openSignIn={openSignInModal}
-          />
         )}
       </nav>
     </header>

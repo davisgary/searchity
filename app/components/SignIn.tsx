@@ -78,10 +78,9 @@ export default function SignIn({
         }`}
         onClick={handleOverlayClick}
       >
-       <div
+        <div
           ref={modalRef}
-          tabIndex={-1}
-          className={`bg-neutral-800 p-5 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out focus:!outline-[0] ${
+          className={`bg-neutral-800 p-5 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out ${
             isOpen ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
           }`}
         >
@@ -93,7 +92,7 @@ export default function SignIn({
             >
               ✕
             </button>
-            <span className="absolute left-1/2 -translate-x-1/2 top-[2.25rem] sm:top-[2.5rem] text-xs text-white bg-neutral-950 px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:top-[2rem] sm:group-hover:top-[2.25rem] whitespace-nowrap">
+            <span className="absolute left-1/2 -translate-x-1/2 top-[2.25rem] sm:top-[2.5rem] text-xs text-white bg-neutral-950 px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:top-[2rem] sm:group-hover:top-[2.5rem] whitespace-nowrap">
               Close
             </span>
           </div>
