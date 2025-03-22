@@ -110,7 +110,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
           }}
           aria-label="Enter your search"
           placeholder=""
-          className={`flex-1 bg-transparent text-lg leading-normal h-full pl-3 pr-2 focus:outline-none focus:ring-0 overflow-x-auto whitespace-nowrap min-w-0 ${
+          className={`flex-1 bg-transparent text-lg leading-normal h-full pl-4 pr-2 focus:outline-none focus:ring-0 overflow-x-auto whitespace-nowrap min-w-0 ${
             isPlaceholderActive ? "text-white/60" : "text-white"
           }`}
           style={{ direction: "ltr" }}
@@ -118,7 +118,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
         <button
           onClick={onSearch}
           disabled={isLoading || !isInputValid}
-          className="bg-neutral-900 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-2"
+          className="bg-neutral-900 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3"
           aria-label="Search"
         >
           <PiMagnifyingGlassBold

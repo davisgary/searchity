@@ -8,8 +8,6 @@ const bigquery = new BigQuery({
 
 export async function GET() {
   try {
-    console.log('Fetching latest Google Trends data from BigQuery...');
-
     const query = `
       SELECT
         term,
@@ -33,7 +31,6 @@ export async function GET() {
 
     return NextResponse.json({ trends });
   } catch (error) {
-    console.error('Error fetching Google Trends:', error);
     return NextResponse.json({ error: 'Failed to fetch Google Trends' }, { status: 500 });
   }
 }

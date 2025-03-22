@@ -9,6 +9,5 @@ export async function GET(req: NextRequest) {
   const scope = 'email';
   const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(returnTo)}`;
 
-  console.log('Redirecting to Facebook with state:', returnTo);
   return new NextResponse(null, { status: 302, headers: { Location: authUrl } });
 }

@@ -6,8 +6,6 @@ export async function DELETE() {
   const cookieStore = await cookies();
   const userId = cookieStore.get('userId')?.value;
 
-  console.log('Delete-account - userId from cookie:', userId);
-
   if (!userId) {
     return NextResponse.json(
       { error: 'Not authenticated' },
@@ -35,13 +33,10 @@ export async function DELETE() {
 
     cookieStore.delete('userId');
 
-    console.log('Delete-account - account deleted for userId:', userId);
-
     return NextResponse.json({
       message: 'Account successfully deleted'
     });
   } catch (error) {
-    console.error('Delete-account error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

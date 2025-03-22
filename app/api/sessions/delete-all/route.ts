@@ -22,7 +22,6 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ message: "All sessions deleted successfully" }, { status: 200 });
   } catch (error) {
-    console.error("Error deleting all sessions:", error);
     return NextResponse.json({ error: "Failed to delete all sessions" }, { status: 500 });
   }
 }

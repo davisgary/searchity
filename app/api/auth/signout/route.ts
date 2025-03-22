@@ -6,7 +6,6 @@ export async function POST() {
     response.cookies.delete('userId');
     return response;
   } catch (error) {
-    console.error('Sign out error:', error);
     return NextResponse.json({ error: 'Sign out failed' }, { status: 500 });
   }
 }

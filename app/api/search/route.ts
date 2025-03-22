@@ -5,6 +5,17 @@ import { neon } from "@neondatabase/serverless";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const db = neon(process.env.DATABASE_URL!);
 
+const logError = (message: string, error: unknown) => {
+  const errorMsg = error instanceof Error ? error.message : "Unknown error";
+  console.error(`${message}: ${errorMsg}`);
+};
+
+const logInfo = (message: string, data?: unknown) => {
+  if (process.env.NODE_ENV !== "production") {
+    console.log(message, data);
+  }
+};
+
 async function fetchWithTimeout(url: string, options = {}, timeout = 2000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -53,15 +64,15 @@ async function fetchImageFromPage(url: string) {
 }
 
 export async function POST(req: NextRequest) {
-  console.log("Search route hit");
+  logInfo("Search route hit");
   try {
     const { message } = await req.json();
     if (!message) throw new Error("Missing message in request.");
-    console.log("Message received:", message);
+    logInfo("Message received", message);
 
     const userId = req.cookies.get("userId")?.value;
     const isLoggedIn = !!userId;
-    console.log("User ID:", userId || "Not logged in");
+    logInfo("User ID", userId || "Not logged in");
 
     const { GOOGLE_API_KEY, CUSTOM_SEARCH_ENGINE_ID } = process.env;
     if (!GOOGLE_API_KEY || !CUSTOM_SEARCH_ENGINE_ID) throw new Error("Missing API keys");
@@ -180,14 +191,14 @@ export async function POST(req: NextRequest) {
             );
 
             if (!latestSession.length || latestSession[0].searches.length >= 10) {
-              console.log("Creating new session...");
+              logInfo("Creating new session");
               const result = await db(
                 'INSERT INTO search_sessions (user_id, searches) VALUES ($1, $2) RETURNING id',
                 [userId, JSON.stringify([newSearchEntry])]
               );
               sessionId = result[0].id;
             } else {
-              console.log("Updating existing session...");
+              logInfo("Updating existing session");
               const currentSearches = latestSession[0].searches;
               currentSearches.push(newSearchEntry);
               await db(
@@ -199,11 +210,11 @@ export async function POST(req: NextRequest) {
             console.timeEnd("DB Update");
           }
 
-          console.log("Streaming final response with sessionId:", sessionId);
+          logInfo("Streaming final response with sessionId", sessionId);
           controller.enqueue(encoder.encode(JSON.stringify({ final: true, searchResults, suggestions, sessionId }) + "\n"));
           controller.close();
         } catch (err) {
-          console.error("Stream error:", err);
+          logError("Stream error", err);
           controller.error(err);
         }
       },
@@ -211,7 +222,7 @@ export async function POST(req: NextRequest) {
 
     return new NextResponse(stream, { headers: { "Content-Type": "text/plain" } });
   } catch (error) {
-    console.error("Route error:", error);
+    logError("Route error", error);
     return NextResponse.json({ error: "Failed to process search" }, { status: 500 });
   }
 }

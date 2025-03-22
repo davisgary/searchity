@@ -57,7 +57,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, sessionId, updatedSearches });
   } catch (error) {
-    console.error("Add-to-session error:", error);
     return NextResponse.json({ success: false, error: "Failed to add to session" }, { status: 500 });
   }
 }
