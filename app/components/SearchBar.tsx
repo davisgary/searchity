@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PiMagnifyingGlassBold } from "react-icons/pi";
 
 interface SearchBarProps {
@@ -11,7 +11,8 @@ interface SearchBarProps {
 export default function SearchBar({ handleSearch, isLoading = false }: SearchBarProps) {
   const [input, setInput] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState("");
+  const [isPlaceholderActive, setIsPlaceholderActive] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const placeholders = [
     "What's happening around the world today?",
@@ -41,67 +42,83 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
   ];
 
   useEffect(() => {
-    if (!input) {
+    if (isPlaceholderActive) {
       let currentText = "";
       const currentPlaceholder = placeholders[placeholderIndex];
       let charIndex = 0;
 
       const typeInterval = setInterval(() => {
         if (charIndex < currentPlaceholder.length) {
-          currentText += currentPlaceholder[charIndex];
-          setDisplayedText(currentText);
+          currentText = currentPlaceholder.slice(0, charIndex + 1);
+          setInput(currentText);
+          if (inputRef.current) {
+            setTimeout(() => {
+              if (inputRef.current) {
+                inputRef.current.scrollLeft = inputRef.current.scrollWidth;
+              }
+            }, 0);
+          }
           charIndex++;
         } else {
           clearInterval(typeInterval);
           setTimeout(() => {
-            setDisplayedText("");
+            setInput("");
             setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
           }, 3000);
         }
       }, 50);
 
       return () => clearInterval(typeInterval);
-    } else {
-      setDisplayedText("");
     }
-  }, [input, placeholderIndex, placeholders.length]);
+  }, [isPlaceholderActive, placeholderIndex, placeholders.length]);
 
-  const isInputValid = input.trim().length > 0;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+    setIsPlaceholderActive(false);
+  };
+
+  const handleFocus = () => {
+    if (isPlaceholderActive) {
+      setInput("");
+      setIsPlaceholderActive(false);
+    }
+  };
+
+  const isInputValid = input.trim().length > 0 && !isPlaceholderActive;
 
   const onSearch = () => {
     if (isInputValid) {
       handleSearch(input);
       setInput("");
+      setIsPlaceholderActive(true);
     }
   };
 
   return (
     <div className="sticky top-0 z-10 bg-neutral-900 w-full pt-4">
-      <div className="w-full relative flex items-center bg-neutral-800 rounded-2xl border-2 border-white/20 px-3 h-16">
-        <div className="relative w-full">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && isInputValid) {
-                e.preventDefault();
-                onSearch();
-              }
-            }}
-            aria-label="Enter your search"
-            placeholder=""
-            className="w-full bg-neutral-800 text-lg leading-normal text-white focus:outline-none focus:ring-0 h-full pl-3 pr-5"
-          />
-          {!input && (
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg leading-normal text-white/60 pointer-events-none">
-              {displayedText}
-            </span>
-          )}
-        </div>
+      <div className="w-full flex items-center bg-neutral-800 rounded-2xl border-2 border-white/20 h-16 pl-0">
+        <input
+          ref={inputRef}
+          value={input}
+          onChange={handleInputChange}
+          onFocus={handleFocus}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && isInputValid) {
+              e.preventDefault();
+              onSearch();
+            }
+          }}
+          aria-label="Enter your search"
+          placeholder=""
+          className={`flex-1 bg-transparent text-lg leading-normal h-full pl-3 pr-2 focus:outline-none focus:ring-0 overflow-x-auto whitespace-nowrap min-w-0 ${
+            isPlaceholderActive ? "text-white/60" : "text-white"
+          }`}
+          style={{ direction: "ltr" }}
+        />
         <button
           onClick={onSearch}
           disabled={isLoading || !isInputValid}
-          className="bg-neutral-900 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+          className="bg-neutral-900 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-2"
           aria-label="Search"
         >
           <PiMagnifyingGlassBold
