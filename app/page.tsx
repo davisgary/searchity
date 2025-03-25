@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
-import Header from "./components/Header";
-import Searches from "./components/Searches";
+import Header from "./components/ui/Header";
+import Searches from "./components/search/Searches";
 import { useSearchParams } from "next/navigation";
 
 interface Search {

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import SignIn from "./SignIn";
-import SignUp from "./SignUp";
+import SignIn from "../auth/SignIn";
+import SignUp from "../auth/SignUp";
 import SearchesModal from "./SearchesModal";
 import NewSearch from "./NewSearch";
 

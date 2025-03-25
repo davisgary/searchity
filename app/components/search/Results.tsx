@@ -115,7 +115,7 @@ const ResultImage: React.FC<{ result: ResultItem }> = ({ result }) => {
     <div className="p-2">
       <div
         className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105"
-        style={{ height: '205px', display: 'flex', flexDirection: 'column' }}
+        style={{ height: '215px', display: 'flex', flexDirection: 'column' }}
       >
         <a
           href={result.link}

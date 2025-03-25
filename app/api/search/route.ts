@@ -5,17 +5,6 @@ import { neon } from "@neondatabase/serverless";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const db = neon(process.env.DATABASE_URL!);
 
-const logError = (message: string, error: unknown) => {
-  const errorMsg = error instanceof Error ? error.message : "Unknown error";
-  console.error(`${message}: ${errorMsg}`);
-};
-
-const logInfo = (message: string, data?: unknown) => {
-  if (process.env.NODE_ENV !== "production") {
-    console.log(message, data);
-  }
-};
-
 async function fetchWithTimeout(url: string, options = {}, timeout = 2000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -64,15 +53,12 @@ async function fetchImageFromPage(url: string) {
 }
 
 export async function POST(req: NextRequest) {
-  logInfo("Search route hit");
   try {
     const { message } = await req.json();
     if (!message) throw new Error("Missing message in request.");
-    logInfo("Message received", message);
 
     const userId = req.cookies.get("userId")?.value;
     const isLoggedIn = !!userId;
-    logInfo("User ID", userId || "Not logged in");
 
     const { GOOGLE_API_KEY, CUSTOM_SEARCH_ENGINE_ID } = process.env;
     if (!GOOGLE_API_KEY || !CUSTOM_SEARCH_ENGINE_ID) throw new Error("Missing API keys");
@@ -114,9 +100,7 @@ export async function POST(req: NextRequest) {
     searchResults = searchResults.map((item) => {
       const eventDateString = item.date || null;
       const isPastEvent = eventDateString && new Date(eventDateString) < currentDate;
-      const isOngoingEvent = eventDateString && item.date.includes("–") && isEventOngoing(item.date);
       if (isPastEvent) item.snippet = `${item.snippet} (Event has already occurred)`;
-      else if (isOngoingEvent) item.snippet = `${item.snippet} (Currently happening)`;
       return item;
     });
 
@@ -125,9 +109,7 @@ export async function POST(req: NextRequest) {
     const summarizedContent = searchResults.map((item) => `- ${item.title}: ${item.snippet}`).join("\n");
 
     console.time("OpenAI Summary");
-    const systemMessage = searchResults.some((item) => item.snippet.includes("(Currently happening)"))
-      ? "Summarize the following search results, highlighting the ongoing event if applicable."
-      : `Summarize the following search results, ensuring the response directly addresses the user's query: '" + message + "'. Focus on answering what the user asked, using relevant details from the results. Start with a brief intro, then two to three key points, and end with a concise remark. Use bullet points, ensuring each point appears on a separate line.`;
+    const systemMessage = `Based on '" + message + "' and the search results, start with a short opening sentence that dives into the topic. Then list two or three key points from the results that answer what they're asking, keeping it natural and to the point. Use bullet points, one per line, and end with a brief closing sentence. Mix up the wording each time to avoid sounding the same.`;
     const streamCompletion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       stream: true,
@@ -191,14 +173,12 @@ export async function POST(req: NextRequest) {
             );
 
             if (!latestSession.length || latestSession[0].searches.length >= 10) {
-              logInfo("Creating new session");
               const result = await db(
                 'INSERT INTO search_sessions (user_id, searches) VALUES ($1, $2) RETURNING id',
                 [userId, JSON.stringify([newSearchEntry])]
               );
               sessionId = result[0].id;
             } else {
-              logInfo("Updating existing session");
               const currentSearches = latestSession[0].searches;
               currentSearches.push(newSearchEntry);
               await db(
@@ -210,11 +190,9 @@ export async function POST(req: NextRequest) {
             console.timeEnd("DB Update");
           }
 
-          logInfo("Streaming final response with sessionId", sessionId);
           controller.enqueue(encoder.encode(JSON.stringify({ final: true, searchResults, suggestions, sessionId }) + "\n"));
           controller.close();
         } catch (err) {
-          logError("Stream error", err);
           controller.error(err);
         }
       },
@@ -222,15 +200,6 @@ export async function POST(req: NextRequest) {
 
     return new NextResponse(stream, { headers: { "Content-Type": "text/plain" } });
   } catch (error) {
-    logError("Route error", error);
     return NextResponse.json({ error: "Failed to process search" }, { status: 500 });
   }
 }
-
-const isEventOngoing = (eventDate: string): boolean => {
-  const currentDate = new Date();
-  const [startDate, endDate] = eventDate.split("–");
-  const start = new Date(startDate.trim());
-  const end = new Date(endDate.trim());
-  return currentDate >= start && currentDate <= end;
-};

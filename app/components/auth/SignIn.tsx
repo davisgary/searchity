@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import Account from "./Account";
+import Account from "../ui/Account";
 
 interface SignInProps {
   isSignedIn: boolean;
