@@ -96,7 +96,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
 
   return (
     <div className="sticky top-0 z-10 bg-neutral-900 w-full pt-4">
-      <div className="w-full flex items-center bg-neutral-800 rounded-2xl border-2 border-white/20 h-16 pl-0 focus-within:border-white/40">
+      <div className="w-full flex items-center rounded-2xl border-2 border-white/20 h-16 pl-0 focus-within:border-white/40 overflow-hidden">
         <input
           ref={inputRef}
           value={input}
@@ -109,16 +109,16 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
             }
           }}
           aria-label="Enter your search"
-          placeholder=""
+          placeholder="Enter your search..."
           className={`flex-1 bg-transparent text-lg leading-normal h-full pl-4 pr-2 focus:outline-none focus:ring-0 overflow-x-auto whitespace-nowrap min-w-0 ${
-            isPlaceholderActive ? "text-white/60" : "text-white"
+            isPlaceholderActive ? "text-white/60 placeholder:text-white/60" : "text-white placeholder:text-white/60"
           }`}
           style={{ direction: "ltr" }}
         />
         <button
           onClick={onSearch}
           disabled={isLoading || !isInputValid}
-          className="bg-neutral-900 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3"
+          className="bg-neutral-800 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3"
           aria-label="Search"
         >
           <PiMagnifyingGlassBold

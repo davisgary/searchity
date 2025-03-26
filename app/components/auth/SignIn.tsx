@@ -4,12 +4,9 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import Account from "../ui/Account";
 
 interface SignInProps {
   isSignedIn: boolean;
-  onSignOut: () => Promise<void>;
-  userImage?: string;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   openSignUp: () => void;
@@ -17,8 +14,6 @@ interface SignInProps {
 
 export default function SignIn({
   isSignedIn,
-  onSignOut,
-  userImage,
   isOpen,
   setIsOpen,
   openSignUp,
@@ -54,24 +49,22 @@ export default function SignIn({
     }
   }, [isOpen]);
 
+  if (isSignedIn) return null;
+
   return (
     <div className="relative">
-      {isSignedIn ? (
-        <Account isSignedIn={isSignedIn} onSignOut={onSignOut} userImage={userImage} />
-      ) : (
-        <div className="relative group">
-          <button
-            onClick={() => setIsOpen(true)}
-            className="flex items-center mx-3 px-4 py-2 text-neutral-400 font-semibold rounded-full transition-all duration-300 hover:text-neutral-100 hover:bg-neutral-800 hover:scale-105 focus:text-neutral-100"
-            aria-label="Open sign in dialog"
-          >
-            <span>Sign In</span>
-          </button>
-          <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs text-white bg-neutral-950 px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-2rem] whitespace-nowrap">
-            Go to Sign In
-          </span>
-        </div>
-      )}
+      <div className="relative group">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex items-center mx-3 px-4 py-2 text-neutral-400 font-semibold rounded-full transition-all duration-300 hover:text-neutral-100 hover:bg-neutral-800 hover:scale-105 focus:text-neutral-100"
+          aria-label="Open sign in dialog"
+        >
+          <span>Sign In</span>
+        </button>
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs text-white bg-neutral-950 px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-2rem] whitespace-nowrap">
+          Go to Sign In
+        </span>
+      </div>
       <div
         className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out pb-10 md:pb-32 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"

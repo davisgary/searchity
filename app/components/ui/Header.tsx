@@ -6,6 +6,7 @@ import SignIn from "../auth/SignIn";
 import SignUp from "../auth/SignUp";
 import SearchesModal from "./SearchesModal";
 import NewSearch from "./NewSearch";
+import Account from "./Account";
 
 interface Search {
   query: string;
@@ -33,6 +34,7 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
   const [userImage, setUserImage] = useState<string | undefined>(undefined);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -64,6 +66,7 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
       setIsSignedIn(false);
       setUserImage(undefined);
       setSessions([]);
+      setIsDropdownOpen(false);
       window.location.href = "/";
     } catch (error) {
       console.error("Sign out error:", error);
@@ -71,19 +74,17 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
   };
 
   const openSignInModal = () => {
-    console.log("Opening SignIn modal");
     setIsSignInModalOpen(true);
     setIsSignUpModalOpen(false);
   };
 
   const openSignUpModal = () => {
-    console.log("Opening SignUp modal");
     setIsSignUpModalOpen(true);
     setIsSignInModalOpen(false);
   };
 
   return (
-    <header className="w-full mx-auto flex items-center justify-between px-6 md:px-12 py-4" style={{ height: '64px' }}>
+    <header className="w-full max-w-7xl mx-auto flex items-center justify-between px-6 md:px-12 py-4" style={{ height: '64px' }}>
       <Link href="/">
         <span className="text-white text-xl font-semibold">Search</span>
       </Link>
@@ -103,25 +104,32 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
                   setSessions={setSessions}
                   className="text-white hover:text-neutral-300 transition-colors duration-300 mx-4"
                 />
+                <Account
+                  isSignedIn={isSignedIn}
+                  onSignOut={handleSignOut}
+                  userImage={userImage}
+                  isDropdownOpen={isDropdownOpen}
+                  setIsDropdownOpen={setIsDropdownOpen}
+                />
               </>
             )}
-            <SignIn
-              isSignedIn={isSignedIn}
-              onSignOut={handleSignOut}
-              userImage={userImage}
-              isOpen={isSignInModalOpen}
-              setIsOpen={setIsSignInModalOpen}
-              openSignUp={openSignUpModal}
-            />
             {!isSignedIn && (
-              <SignUp
-                isSignedIn={isSignedIn}
-                onSignOut={handleSignOut}
-                userImage={userImage}
-                isOpen={isSignUpModalOpen}
-                setIsOpen={setIsSignUpModalOpen}
-                openSignIn={openSignInModal}
-              />
+              <>
+                <SignIn
+                  isSignedIn={isSignedIn}
+                  isOpen={isSignInModalOpen}
+                  setIsOpen={setIsSignInModalOpen}
+                  openSignUp={openSignUpModal}
+                />
+                <SignUp
+                  isSignedIn={isSignedIn}
+                  onSignOut={handleSignOut}
+                  userImage={userImage}
+                  isOpen={isSignUpModalOpen}
+                  setIsOpen={setIsSignUpModalOpen}
+                  openSignIn={openSignInModal}
+                />
+              </>
             )}
           </>
         )}

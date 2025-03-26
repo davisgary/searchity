@@ -11,34 +11,33 @@ interface SuggestionsProps {
 export default function Suggestions({ suggestions, handleSearch, isLoading }: SuggestionsProps) {
   return (
     <div>
-      <p className="text-lg font-medium">Follow-Up Suggestions</p>
-      <ul className="text-left mt-2 space-y-1">
-        {suggestions.slice(0, 5).map((suggestion, i) => {
+      <div className="flex items-center">
+        <p className="text-lg font-medium">Follow-Up Suggestions</p>
+        <PiMagnifyingGlassPlusBold className="inline w-4 h-4 ml-1 align-middle" />
+      </div>
+      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {suggestions.slice(0, 6).map((suggestion, i) => {
           const sanitizedSuggestion = suggestion
             .replace(/^[-\s]+/, "")
             .replace(/"/g, "")
             .trim();
           return (
-            <li key={i}>
-              <button
-                onClick={() => handleSearch(sanitizedSuggestion)}
-                disabled={isLoading}
-                className="text-neutral-400 hover:text-white transition-colors duration-300 group w-full text-left"
+            <button
+              key={i}
+              onClick={() => handleSearch(sanitizedSuggestion)}
+              disabled={isLoading}
+              className="w-full flex items-center justify-between rounded-md py-2 px-3 bg-neutral-800 hover:scale-105 hover:bg-neutral-700 transition-all duration-300"
+            >
+              <span
+                className="inline-block max-w-full align-middle truncate"
+                title={sanitizedSuggestion}
               >
-                <span className="inline-block group-hover:scale-105 transition-transform duration-300 max-w-full">
-                  <span
-                    className="inline-block max-w-[calc(100%-1.25rem)] align-middle truncate"
-                    title={sanitizedSuggestion}
-                  >
-                    {sanitizedSuggestion}
-                  </span>
-                  <PiMagnifyingGlassPlusBold className="inline w-4 h-4 ml-1 align-middle" />
-                </span>
-              </button>
-            </li>
+                {sanitizedSuggestion}
+              </span>
+            </button>
           );
         })}
-      </ul>
+      </div>
     </div>
   );
 }

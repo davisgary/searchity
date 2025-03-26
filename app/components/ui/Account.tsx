@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
 import { useRouter } from "next/navigation";
 import DeleteModal from "./DeleteModal";
 import Dropdown from "./Dropdown";
@@ -9,12 +9,32 @@ interface AccountProps {
   isSignedIn: boolean;
   onSignOut: () => Promise<void>;
   userImage?: string;
+  isDropdownOpen: boolean;
+  setIsDropdownOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function Account({ isSignedIn, onSignOut, userImage }: AccountProps) {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+export default function Account({
+  isSignedIn,
+  onSignOut,
+  userImage,
+  isDropdownOpen,
+  setIsDropdownOpen,
+}: AccountProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const router = useRouter();
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (clickTimeoutRef.current) {
+      clearTimeout(clickTimeoutRef.current);
+    }
+    clickTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen((prev: boolean) => !prev);
+    }, 100);
+  };
 
   const handleSignOutClick = async () => {
     await onSignOut();
@@ -45,40 +65,58 @@ export default function Account({ isSignedIn, onSignOut, userImage }: AccountPro
     setIsDeleteModalOpen(true);
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isDropdownOpen &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        !isDeleteModalOpen
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen, setIsDropdownOpen, isDeleteModalOpen]);
+
   if (!isSignedIn) return null;
 
   return (
-    <div className="relative">
-      <div className="relative group">
-        <button
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="relative w-8 h-8 ml-1 rounded-full overflow-hidden focus:outline-none transition-all duration-300 hover:ring-1 hover:ring-neutral-600"
-        >
-          <img
-            src={userImage || "/meta.png"}
-            alt="Account"
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-            onError={(e) => {
-              console.log("Account - Image failed to load, using /meta.png");
-              e.currentTarget.src = "/meta.png";
-            }}
-          />
-        </button>
-        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs text-white bg-neutral-950 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-          Account
-        </span>
-      </div>
+    <div className="relative group">
+      <button
+        onClick={handleClick}
+        onMouseDown={(e) => e.stopPropagation()}
+        className="relative w-8 h-8 ml-1 focus:outline-none transition-all duration-300 hover:ring-1 hover:ring-neutral-600 rounded-full z-10 bg-transparent"
+      >
+        <img
+          src={userImage || "/meta.png"}
+          alt="Account"
+          className="w-full h-full object-cover rounded-full"
+          referrerPolicy="no-referrer"
+          onError={(e) => (e.currentTarget.src = "/meta.png")}
+        />
+      </button>
+      <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs text-white bg-neutral-950 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+        Account
+      </span>
       {isDropdownOpen && (
-        <Dropdown onSignOut={handleSignOutClick} onDeleteConfirm={handleDeleteConfirm} />
+        <div ref={dropdownRef} className="absolute top-full right-0 z-50">
+          <Dropdown onSignOut={handleSignOutClick} onDeleteConfirm={handleDeleteConfirm} />
+        </div>
       )}
-      <DeleteModal
-        showModal={isDeleteModalOpen}
-        setShowModal={setIsDeleteModalOpen}
-        onConfirm={handleDeleteAccount}
-        heading="Are you sure you want to delete your account?"
-        message="This action cannot be undone."
-      />
+      {isDeleteModalOpen && (
+        <DeleteModal
+          showModal={isDeleteModalOpen}
+          setShowModal={setIsDeleteModalOpen}
+          onConfirm={handleDeleteAccount}
+          heading="Are you sure you want to delete your account?"
+          message="This action cannot be undone."
+        />
+      )}
     </div>
   );
 }
