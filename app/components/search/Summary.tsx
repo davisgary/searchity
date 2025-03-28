@@ -48,7 +48,7 @@ const Summary: React.FC<SummaryProps> = ({ summary }) => {
 
         return (
           <div key={index} className="flex items-start my-2">
-            <span className="mr-2 text-white">
+            <span className="mr-2">
               {isNumbered ? `${index + 1}.` : '•'}
             </span>
             <span

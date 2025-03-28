@@ -26,7 +26,7 @@ export default function Suggestions({ suggestions, handleSearch, isLoading }: Su
               key={i}
               onClick={() => handleSearch(sanitizedSuggestion)}
               disabled={isLoading}
-              className="w-full flex items-center justify-between rounded-md py-2 px-3 bg-neutral-800 hover:scale-105 hover:bg-neutral-700 transition-all duration-300"
+              className="w-full flex items-center justify-between rounded-md py-2 px-3 bg-accent hover:scale-105 transition-all duration-300"
             >
               <span
                 className="inline-block max-w-full align-middle truncate"

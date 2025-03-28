@@ -86,7 +86,7 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
   return (
     <header className="w-full max-w-7xl mx-auto flex items-center justify-between px-6 md:px-12 py-4" style={{ height: '64px' }}>
       <Link href="/">
-        <span className="text-white text-xl font-semibold">Search</span>
+        <span className="text-foreground text-xl font-semibold">Search</span>
       </Link>
       <nav className="flex text-sm font-semibold items-center">
         {isLoading ? (
@@ -95,14 +95,11 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
           <>
             {isSignedIn && (
               <>
-                <NewSearch
-                  onClick={() => {}}
-                  className="text-white hover:text-neutral-300 transition-colors duration-300"
-                />
+                <NewSearch onClick={() => {}} />
                 <SearchesModal
                   sessions={sessions}
                   setSessions={setSessions}
-                  className="text-white hover:text-neutral-300 transition-colors duration-300 mx-4"
+                  className="mx-4"
                 />
                 <Account
                   isSignedIn={isSignedIn}

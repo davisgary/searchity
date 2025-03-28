@@ -90,7 +90,7 @@ export default function Account({
       <button
         onClick={handleClick}
         onMouseDown={(e) => e.stopPropagation()}
-        className="relative w-8 h-8 ml-1 focus:outline-none transition-all duration-300 hover:ring-1 hover:ring-neutral-600 rounded-full z-10 bg-transparent"
+        className="relative w-9 h-9 ml-1 focus:outline-none transition-all duration-300 hover:ring-1 hover:ring-accent rounded-full z-10 bg-transparent"
       >
         <img
           src={userImage || "/meta.png"}
@@ -100,7 +100,7 @@ export default function Account({
           onError={(e) => (e.currentTarget.src = "/meta.png")}
         />
       </button>
-      <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs text-white bg-neutral-950 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+      <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs px-2 py-1 rounded bg-accent opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
         Account
       </span>
       {isDropdownOpen && (

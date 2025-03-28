@@ -115,24 +115,24 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
       <div className={`relative group z-10 ${className || ''}`}>
         <button
           onClick={toggleSessions}
-          className="flex items-center justify-center text-white/70 w-8 h-8 rounded-full transition-all duration-300 hover:text-white hover:bg-neutral-800 hover:ring-1 hover:ring-neutral-600"
+          className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-accent hover:text-foreground transition-all duration-300"
           aria-label="Toggle search sessions"
         >
           <PiListMagnifyingGlassBold size={28} />
         </button>
-        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs text-white bg-neutral-950 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs px-2 py-1 rounded bg-accent opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
           Searches
         </span>
       </div>
       {showSessions && (
         <div
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 bg-background/50 z-40"
           onClick={handleClickOutside}
         />
       )}
       <div
         ref={panelRef}
-        className={`fixed inset-y-0 right-0 w-3/4 sm:w-full max-w-md transform transition-transform duration-300 ease-in-out bg-neutral-800 shadow-xl z-50 flex flex-col ${
+        className={`fixed inset-y-0 right-0 w-3/4 sm:w-full max-w-md transform transition-transform duration-300 ease-in-out bg-accent shadow-xl z-50 flex flex-col ${
           showSessions ? 'translate-x-0' : 'translate-x-full'
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -147,12 +147,12 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
             <div className="relative group" style={{ width: 'fit-content', marginLeft: 'auto', marginRight: '0', marginTop: '0.25rem' }}>
               <button
                 onClick={() => setShowSessions(false)}
-                className="flex items-center justify-center text-white/70 w-8 h-8 rounded-full transition-all duration-300 hover:text-white hover:bg-neutral-800 hover:ring-1 hover:ring-neutral-600"
+                className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-accent hover:text-foreground transition-all duration-300"
                 aria-label="Close sessions panel"
               >
                 <PiArrowLineRightBold size={24} />
               </button>
-              <span className="absolute left-1/2 -translate-x-1/2 top-[2.25rem] sm:top-[2.5rem] text-xs text-white bg-neutral-950 px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:top-[2rem] sm:group-hover:top-[2.25rem] whitespace-nowrap">
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs px-2 py-1 rounded bg-accent opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
                 Close
               </span>
             </div>
@@ -163,18 +163,18 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
               className="flex flex-row items-center justify-center mt-5 space-x-2"
             >
             <NewSearch />
-            <span className="text-lg text-white">Start your first search</span>
+            <span className="text-lg">Start your first search</span>
             </button>
           ) : (
             <div className="mt-5 space-y-6">
               {sortedDates.map((date) => (
                 <div key={date}>
-                  <h3 className="text-white/50 font-medium mb-1">{date}</h3>
+                  <h3 className="text-foreground/80 font-medium mb-1">{date}</h3>
                   <ul className="space-y-2">
                     {groupedSessions[date].map((session) => (
                       <li
                         key={session.id}
-                        className="flex items-center justify-between text-left cursor-pointer p-2 rounded-2xl border border-white/30 transition-all duration-300 hover:bg-neutral-700"
+                        className="flex items-center justify-between text-left cursor-pointer p-2 rounded-2xl border border-primary/30 transition-all duration-300 hover:bg-primary/10"
                         onClick={() => handleSessionClick(session.id)}
                       >
                         <span className="text-base font-normal flex-1">
@@ -186,12 +186,12 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
                         <div className="relative group">
                             <button
                               onClick={(e) => handleOpenInNewTab(session.id, e)}
-                              className="p-1 text-white/70 transition-all duration-300 hover:text-sky-600"
+                              className="p-1 text-foreground/70 transition-all duration-300 hover:text-sky-600"
                               aria-label="Open in new tab"
                             >
                               <PiArrowSquareOutBold size={20} />
                             </button>
-                            <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs text-white bg-neutral-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-1.75rem] whitespace-nowrap">
+                            <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs bg-accent px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-1.75rem] whitespace-nowrap">
                               Open in new tab
                             </span>
                           </div>
@@ -201,12 +201,12 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
                               e.stopPropagation();
                               setShowDeleteSingleConfirm(session.id);
                             }}
-                            className="p-1 text-white/70 transition-all duration-300 hover:text-red-600"
+                            className="p-1 text-foreground/70 transition-all duration-300 hover:text-destructive-foreground"
                             aria-label="Delete session"
                           >
                             <PiMinusCircleBold size={20} />
                           </button>
-                          <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs text-white bg-neutral-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-1.75rem] whitespace-nowrap">
+                          <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs bg-accent px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-1.75rem] whitespace-nowrap">
                             Delete
                           </span>
                         </div>
@@ -224,12 +224,12 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
             <div className="relative group">
               <button
                 onClick={() => setShowDeleteAllConfirm(true)}
-                className="text-sm text-white/70 transition-all duration-300 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 focus:text-red-500"
+                className="text-sm transition-all duration-300 hover:text-destructive-foreground"
                 aria-label="Confirm delete all items"
               >
                 Delete All
               </button>
-              <span className="absolute left-1/2 -translate-x-1/2 top-[-2.5rem] text-xs text-white bg-neutral-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:top-[-2rem] whitespace-nowrap">
+              <span className="absolute left-1/2 -translate-x-1/2 top-[-2.5rem] text-xs bg-accent px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:top-[-2rem] whitespace-nowrap">
                 Go to Delete All
               </span>
             </div>
