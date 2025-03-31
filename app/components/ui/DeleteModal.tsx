@@ -23,11 +23,11 @@ const DeleteModal = ({
       }`}
     >
       <div
-        className="absolute inset-0 bg-background/50"
+        className="absolute inset-0 bg-main/50"
         onClick={() => setShowModal(false)}
       ></div>
       <div 
-        className={`relative text-base bg-accent rounded-lg p-6 w-full max-w-lg flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`relative bg-accent text-primary rounded-lg p-6 w-full max-w-lg flex flex-col transition-transform duration-300 ease-in-out ${
           showModal ? 'translate-y-0' : '-translate-y-10'
         }`}
       >
@@ -44,13 +44,13 @@ const DeleteModal = ({
         <div className="flex justify-end space-x-5 tracking-wide">
           <button
             onClick={() => setShowModal(false)}
-            className="px-4 py-2 rounded hover:text-foreground/80 transition-all duration-300 hover:scale-105"
+            className="px-4 py-2 rounded hover:text-primary/80 transition-all duration-300 hover:scale-105"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-6 py-4 bg-destructive text-primary-foreground dark:text-foreground rounded-full hover:bg-destructive/90 transition-all duration-300 hover:scale-105 flex items-center space-x-2"
+            className="px-6 py-4 bg-danger text-primary-primary dark:text-primary rounded-full hover:bg-danger/90 transition-all duration-300 hover:scale-105 flex items-center space-x-2"
           >
             <RiDeleteBin6Line />
             <span>Delete</span>

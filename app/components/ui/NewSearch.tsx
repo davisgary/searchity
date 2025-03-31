@@ -14,7 +14,7 @@ export default function NewSearch({ onClick, className = "" }: NewSearchProps) {
       <Link
         href="/"
         onClick={onClick}
-        className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-accent hover:text-foreground transition-all duration-300"
+        className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-accent hover:text-primary transition-all duration-300"
         aria-label="Create New Search"
       >
         <PiNotePencilBold size={24} />

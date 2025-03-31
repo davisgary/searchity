@@ -10,26 +10,45 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function Theme({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<ThemeType>("auto");
+const initScript = `
+  (function() {
+    const savedTheme = localStorage.getItem("theme") || "auto";
+    const isDark = savedTheme === "dark" || (savedTheme === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    if (isDark) document.documentElement.classList.add("dark");
+  })();
+`;
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as ThemeType | null;
-    const initialTheme = savedTheme || "auto";
-    setTheme(initialTheme);
-  }, []);
+export function Theme({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<ThemeType>(() => {
+    if (typeof window === "undefined") return "auto";
+    return (localStorage.getItem("theme") as ThemeType) || "auto";
+  });
 
   useEffect(() => {
     const html = document.documentElement;
     const isDark = theme === "dark" || (theme === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    html.classList.toggle("dark", isDark);
+
+    if (isDark) html.classList.add("dark");
+    else html.classList.remove("dark");
+
     localStorage.setItem("theme", theme);
+
+    if (theme === "auto") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleChange = (e: MediaQueryListEvent) => {
+        if (e.matches) html.classList.add("dark");
+        else html.classList.remove("dark");
+      };
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
+    <>
+      <script dangerouslySetInnerHTML={{ __html: initScript }} />
+      <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>
+    </>
   );
 }
 

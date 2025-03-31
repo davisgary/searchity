@@ -62,7 +62,7 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
 
   return (
     <div className="pt-4 w-full text-left">
-      <p className="flex items-center text-left text-xs tracking-widest text-foreground/80 mx-2">
+      <p className="flex items-center text-left text-xs tracking-widest text-primary/80 mx-2">
         Trending
         <PiTrendUpBold size={16} className="mx-1" />
       </p>
@@ -72,7 +72,7 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
             <span key={index} className="mx-4">
               <button
                 onClick={() => handleSearch(trend.term)}
-                className="text-normal leading-normal text-foreground/70 rounded-2xl border border-primary/40 px-3 focus:animate-pulse active:bg-transparent transition-all duration-300 hover:border-primary/60 hover:scale-105"
+                className="text-normal leading-normal text-primary/70 rounded-2xl border border-primary/60 px-3 focus:animate-pulse active:bg-transparent transition-all duration-300 hover:border-primary/70 hover:scale-105"
               >
                 {trend.term}
               </button>

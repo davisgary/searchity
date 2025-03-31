@@ -234,7 +234,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
       <div className="w-full overflow-hidden">
         <Trends handleSearch={handleSearch} />
       </div>
-      {error && <p className="mt-4 text-destructive-foreground">{error}</p>}
+      {error && <p className="mt-4 text-danger">{error}</p>}
       {displayedSearches.map((search, index) => (
         <div
           key={`${currentSessionId || "temp"}-${index}`}

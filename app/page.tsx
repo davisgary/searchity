@@ -52,7 +52,7 @@ function IndexContent() {
   }, [sessionId, sessions]);
 
   return (
-    <div className="min-h-screen flex flex-col text-center bg-background">
+    <div className="min-h-screen flex flex-col text-center bg-main">
       <Header sessions={sessions} setSessions={setSessions} />
       <Searches 
         sessionId={sessionId} 

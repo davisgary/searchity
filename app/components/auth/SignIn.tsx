@@ -56,12 +56,12 @@ export default function SignIn({
       <div className="relative group">
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center mx-3 px-4 py-2 text-foreground/80 font-semibold rounded-full transition-all duration-300 hover:bg-primary/20 hover:scale-105 focus:bg-primary/20"
+          className="flex items-center mx-3 px-4 py-2 font-semibold rounded-full transition-all duration-300 hover:bg-accent hover:scale-105"
           aria-label="Open sign in dialog"
         >
           <span>Sign In</span>
         </button>
-        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs bg-primary/20 px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-2rem] whitespace-nowrap">
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs bg-accent px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-2rem] whitespace-nowrap">
           Go to Sign In
         </span>
       </div>
@@ -73,19 +73,19 @@ export default function SignIn({
       >
         <div
           ref={modalRef}
-          className={`bg-accent p-5 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out ${
+          className={`bg-muted p-5 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out ${
             isOpen ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
           }`}
         >
           <div className="relative group w-fit ml-auto">
             <button
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center text-lg text-foreground/70 w-8 h-8 rounded-full transition-all duration-300 hover:bg-primary/30 hover:text-primary-foreground focus:text-primary-foreground/20"
+              className="flex items-center justify-center text-lg text-primary w-8 h-8 rounded-full transition-all duration-300 hover:bg-accent hover:scale-105"
               aria-label="Close modal"
             >
               ✕
             </button>
-            <span className="absolute left-1/2 -translate-x-1/2 top-[2.25rem] sm:top-[2.5rem] text-xs bg-primary text-primary-foreground px-2 py-1 rounded opacity-0 group-hover:opacity-30 group-focus-within:opacity-30 transition-all duration-600 pointer-events-none group-hover:top-[2rem] sm:group-hover:top-[2.5rem] whitespace-nowrap">
+            <span className="absolute left-1/2 -translate-x-1/2 top-[2.25rem] sm:top-[2.5rem] text-xs bg-accent text-primary px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-600 pointer-events-none group-hover:top-[2rem] sm:group-hover:top-[2.5rem] whitespace-nowrap">
               Close
             </span>
           </div>
@@ -110,16 +110,16 @@ export default function SignIn({
               </button>
             </div>
             <div className="text-center space-y-2">
-              <p className="text-foreground/70">
+              <p>
                 Don't have an account?{" "}
                 <button
                   onClick={handleSignUpClick}
-                  className="text-foreground/70 hover:text-foreground/80"
+                  className="text-primary/70 hover:text-primary"
                 >
                   Sign Up
                 </button>
               </p>
-              <Link href="/" className="block text-foreground/70 hover:text-foreground/80">
+              <Link href="/" className="block text-primary/70 hover:text-primary">
                 Terms and Service
               </Link>
             </div>

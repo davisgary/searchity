@@ -95,7 +95,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-background w-full pt-4">
+    <div className="sticky top-0 z-10 bg-main w-full pt-4">
       <div className="w-full flex items-center rounded-2xl border-2 border-primary/50 h-16 pl-0 focus-within:border-primary/70 overflow-hidden">
         <input
           ref={inputRef}
@@ -111,7 +111,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
           aria-label="Enter your search"
           placeholder="Enter your search..."
           className={`flex-1 bg-transparent text-lg leading-normal h-full pl-4 pr-2 focus:outline-none focus:ring-0 overflow-x-auto whitespace-nowrap min-w-0 ${
-            isPlaceholderActive ? "text-foreground/60 placeholder:text-foreground/60" : "text-foreground placeholder:text-foreground/60"
+            isPlaceholderActive ? "text-primary/60 placeholder:text-primary/60" : "text-primary placeholder:text-primary/60"
           }`}
           style={{ direction: "ltr" }}
         />

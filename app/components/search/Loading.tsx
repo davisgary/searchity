@@ -28,7 +28,7 @@ const Loading: React.FC<LoadingProps> = ({ isLoading }) => {
   }, [isLoading]);
 
   return (
-    <div className="flex items-center text-foreground/80 animate-pulse">
+    <div className="flex items-center text-primary/80 animate-pulse">
       <AiOutlineLoading className="w-4 h-4 mr-2 animate-spin" />
       {loadingMessage}
     </div>

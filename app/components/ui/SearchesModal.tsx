@@ -115,7 +115,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
       <div className={`relative group z-10 ${className || ''}`}>
         <button
           onClick={toggleSessions}
-          className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-accent hover:text-foreground transition-all duration-300"
+          className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-accent hover:text-primary transition-all duration-300"
           aria-label="Toggle search sessions"
         >
           <PiListMagnifyingGlassBold size={28} />
@@ -126,7 +126,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
       </div>
       {showSessions && (
         <div
-          className="fixed inset-0 bg-background/50 z-40"
+          className="fixed inset-0 bg-main/50 z-40"
           onClick={handleClickOutside}
         />
       )}
@@ -147,7 +147,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
             <div className="relative group" style={{ width: 'fit-content', marginLeft: 'auto', marginRight: '0', marginTop: '0.25rem' }}>
               <button
                 onClick={() => setShowSessions(false)}
-                className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-accent hover:text-foreground transition-all duration-300"
+                className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-accent hover:text-primary transition-all duration-300"
                 aria-label="Close sessions panel"
               >
                 <PiArrowLineRightBold size={24} />
@@ -169,7 +169,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
             <div className="mt-5 space-y-6">
               {sortedDates.map((date) => (
                 <div key={date}>
-                  <h3 className="text-foreground/80 font-medium mb-1">{date}</h3>
+                  <h3 className="text-primary/80 font-medium mb-1">{date}</h3>
                   <ul className="space-y-2">
                     {groupedSessions[date].map((session) => (
                       <li
@@ -177,7 +177,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
                         className="flex items-center justify-between text-left cursor-pointer p-2 rounded-2xl border border-primary/30 transition-all duration-300 hover:bg-primary/10"
                         onClick={() => handleSessionClick(session.id)}
                       >
-                        <span className="text-base font-normal flex-1">
+                        <span className="font-normal flex-1">
                           {session.searches[0]?.query
                             .replace(/^\d+\.\s*/, "")
                             .replace(/"/g, "") || "Empty Session"}
@@ -186,7 +186,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
                         <div className="relative group">
                             <button
                               onClick={(e) => handleOpenInNewTab(session.id, e)}
-                              className="p-1 text-foreground/70 transition-all duration-300 hover:text-sky-600"
+                              className="p-1 text-primary/70 transition-all duration-300 hover:text-sky-600"
                               aria-label="Open in new tab"
                             >
                               <PiArrowSquareOutBold size={20} />
@@ -201,7 +201,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
                               e.stopPropagation();
                               setShowDeleteSingleConfirm(session.id);
                             }}
-                            className="p-1 text-foreground/70 transition-all duration-300 hover:text-destructive-foreground"
+                            className="p-1 text-primary/70 transition-all duration-300 hover:text-danger"
                             aria-label="Delete session"
                           >
                             <PiMinusCircleBold size={20} />
@@ -224,7 +224,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
             <div className="relative group">
               <button
                 onClick={() => setShowDeleteAllConfirm(true)}
-                className="text-sm transition-all duration-300 hover:text-destructive-foreground"
+                className="text-sm transition-all duration-300 hover:text-danger"
                 aria-label="Confirm delete all items"
               >
                 Delete All

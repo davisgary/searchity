@@ -17,20 +17,10 @@ export const metadata: Metadata = {
 
 const inter = Inter({ subsets: ['latin'] });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
-      <head />
-      <body className="bg-background text-foreground antialiased" suppressHydrationWarning>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){const t=localStorage.getItem('theme')||'auto',d=t==='dark'||(t==='auto'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d)})();`,
-          }}
-        />
+      <body className="bg-main text-primary antialiased">
         <Theme>{children}</Theme>
       </body>
     </html>
