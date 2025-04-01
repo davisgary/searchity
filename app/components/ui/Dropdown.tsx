@@ -38,31 +38,31 @@ export default function Dropdown({ onSignOut, onDeleteConfirm }: DropdownProps) 
         <div className="mt-2 flex space-x-2">
           <button
             onClick={() => setTheme("light")}
-            className={`px-2 py-1 text-sm rounded ${theme === "light" ? "bg-primary text-main" : "bg-accent hover:bg-primary hover:text-main"}`}
+            className={`px-2 py-1 text-sm rounded ${theme === "light" ? "bg-primary text-main" : "bg-muted hover:bg-primary hover:text-main"}`}
           >
             Light
           </button>
           <button
             onClick={() => setTheme("dark")}
-            className={`px-2 py-1 text-sm rounded ${theme === "dark" ? "bg-primary text-main" : "bg-accent hover:bg-primary hover:text-main"}`}
+            className={`px-2 py-1 text-sm rounded ${theme === "dark" ? "bg-primary text-main" : "bg-muted hover:bg-primary hover:text-main"}`}
           >
             Dark
           </button>
           <button
             onClick={() => setTheme("auto")}
-            className={`px-2 py-1 text-sm rounded ${theme === "auto" ? "bg-primary text-main" : "bg-accent hover:bg-primary hover:text-main"}`}
+            className={`px-2 py-1 text-sm rounded ${theme === "auto" ? "bg-primary text-main" : "bg-muted hover:bg-primary hover:text-main"}`}
           >
             Auto
           </button>
         </div>
       </div>
-      <button onClick={handleSignOutClick} className="w-full flex items-center space-x-2 px-5 py-4 hover:bg-accent">
+      <button onClick={handleSignOutClick} className="w-full flex items-center space-x-2 px-5 py-4 hover:bg-muted">
         <PiSignOutBold size={18} />
         <span>Sign Out</span>
       </button>
       <button
         onClick={onDeleteConfirm}
-        className="w-full flex items-center space-x-2 px-5 py-4 border-t border-border text-danger hover:bg-accent"
+        className="w-full flex items-center space-x-2 px-5 py-4 border-t border-border text-danger hover:bg-muted"
       >
         <PiUserMinusBold size={18} />
         <span>Delete Account</span>

@@ -52,7 +52,7 @@ function IndexContent() {
   }, [sessionId, sessions]);
 
   return (
-    <div className="min-h-screen flex flex-col text-center bg-main">
+    <div className="min-h-screen flex flex-col text-center bg-main px-2">
       <Header sessions={sessions} setSessions={setSessions} />
       <Searches 
         sessionId={sessionId} 
@@ -66,7 +66,7 @@ function IndexContent() {
 
 export default function IndexPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <IndexContent />
     </Suspense>
   );

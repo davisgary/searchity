@@ -226,7 +226,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
   }, [displayedSearches, isLoading]);
 
   return (
-    <div className="w-full max-w-3xl mx-auto flex flex-col items-center justify-start flex-grow px-5 py-16">
+    <div className="w-full max-w-3xl mx-auto flex flex-col items-center justify-start flex-grow bg-secondary border border-primary/20 rounded-lg py-10">
       <h1 className="pb-2 font-semibold tracking-tight text-3xl sm:text-4xl md:text-5xl">
         Search the Web with AI
       </h1>
@@ -242,20 +242,24 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
           className="mt-4 w-full text-left"
           ref={index === displayedSearches.length - 1 ? latestSearchRef : null}
         >
-          <Summary summary={search.summary} />
+          <div className="px-2">
+            <Summary summary={search.summary} />
+          </div>
           {search.results.length > 0 && <Results results={search.results} />}
           {(search.summary || search.results.length > 0) && (
+          <div className="px-2">
             <p className="my-4">
               Search for "{search.query.replace(/^\d+\.\s*/, "").replace(/"/g, "")}"
             </p>
-          )}
-          {search.suggestions.length > 0 && (
-            <Suggestions
-              suggestions={search.suggestions}
-              handleSearch={handleSearch}
-              isLoading={isLoading}
-            />
-          )}
+            {search.suggestions.length > 0 && (
+              <Suggestions
+                suggestions={search.suggestions}
+                handleSearch={handleSearch}
+                isLoading={isLoading}
+              />
+            )}
+          </div>
+        )}
         </div>
       ))}
       {isLoading && (

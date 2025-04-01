@@ -95,8 +95,8 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-main w-full pt-4">
-      <div className="w-full flex items-center rounded-2xl border-2 border-primary/50 h-16 pl-0 focus-within:border-primary/70 overflow-hidden">
+    <div className="sticky top-0 z-10 bg-secondary w-full pt-4 px-3 sm:px-5">
+      <div className="w-full flex items-center rounded-2xl border-2 border-primary/70 h-16 pl-0 focus-within:border-primary/90 overflow-hidden">
         <input
           ref={inputRef}
           value={input}
@@ -111,18 +111,18 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
           aria-label="Enter your search"
           placeholder="Enter your search..."
           className={`flex-1 bg-transparent text-lg leading-normal h-full pl-4 pr-2 focus:outline-none focus:ring-0 overflow-x-auto whitespace-nowrap min-w-0 ${
-            isPlaceholderActive ? "text-primary/60 placeholder:text-primary/60" : "text-primary placeholder:text-primary/60"
+            isPlaceholderActive ? "text-primary/60 placeholder:text-primary/80" : "text-primary placeholder:text-primary/80"
           }`}
           style={{ direction: "ltr" }}
         />
         <button
           onClick={onSearch}
           disabled={isLoading || !isInputValid}
-          className="bg-accent w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3"
+          className="bg-muted w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3"
           aria-label="Search"
         >
           <PiMagnifyingGlassBold
-            className={`w-6 h-6 ${isLoading ? "animate-pulse" : ""} ${isInputValid ? "opacity-100" : "opacity-80"}`}
+            className={`w-6 h-6 ${isLoading ? "animate-pulse" : ""} ${isInputValid ? "opacity-100" : "opacity-90"}`}
           />
         </button>
       </div>

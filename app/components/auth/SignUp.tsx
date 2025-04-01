@@ -69,74 +69,82 @@ export default function SignUp({
       <div className="relative group">
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-muted font-semibold rounded-full transition-all duration-300 hover:bg-accent hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2 bg-muted font-semibold rounded-full transition-all duration-300 hover:scale-105"
           aria-label="Open sign up dialog"
         >
           <span>Sign Up</span>
           <FaChevronRight size={10} />
         </button>
-        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs bg-accent px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-2rem] whitespace-nowrap">
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs bg-muted px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-2rem] whitespace-nowrap">
           Go to Sign Up
         </span>
       </div>
       <div
-        className={`fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out pb-10 md:pb-32 ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out pb-10 md:pb-32 ${
+          isOpen
+            ? "bg-main/50 bg-opacity-75 backdrop-blur-sm opacity-100"
+            : "bg-opacity-0 opacity-0 pointer-events-none"
         }`}
         onClick={handleOverlayClick}
       >
         <div
           ref={modalRef}
-          className={`bg-muted p-5 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out ${
+          className={`bg-secondary p-3 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out ${
             isOpen ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
           }`}
         >
           <div className="relative group w-fit ml-auto">
             <button
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center text-lg text-primary w-8 h-8 rounded-full transition-all duration-300 hover:bg-accent hover:scale-105"
+              className="flex items-center justify-center text-lg text-primary w-8 h-8 rounded-full transition-all duration-300 hover:bg-muted hover:scale-105"
               aria-label="Close modal"
             >
               ✕
             </button>
-            <span className="absolute left-1/2 -translate-x-1/2 top-[2.25rem] sm:top-[2.5rem] text-xs bg-accent text-primary px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-600 pointer-events-none group-hover:top-[2rem] sm:group-hover:top-[2.5rem] whitespace-nowrap">
+            <span className="absolute left-1/2 -translate-x-1/2 top-[2.25rem] sm:top-[2.5rem] text-xs bg-muted text-primary px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-600 pointer-events-none group-hover:top-[2rem] sm:group-hover:top-[2.5rem] whitespace-nowrap">
               Close
             </span>
           </div>
-          <div className="px-6 sm:px-10 md:px-14">
-            <h2 className="text-4xl sm:text-5xl font-bold
-             mb-5 sm:mb-8">
+          <div className="px-6 sm:px-8 md:px-10">
+            <h2 className="text-4xl sm:text-5xl font-semibold mb-5">
               Sign up to<br />start searching
             </h2>
-            <div className="flex flex-col gap-4 mb-10 tracking-wide">
+            <div className="flex flex-col gap-4 mb-5 tracking-wide">
               <button
                 onClick={handleGoogleSignUp}
-                className="flex items-center gap-6 sm:gap-3 px-4 py-3 font-semibold rounded-full hover:bg-accent hover:scale-105 transition duration-300 border border-primary/40"
+                className="flex items-center gap-6 sm:gap-3 px-4 py-3 font-semibold rounded-full hover:bg-muted hover:scale-105 transition duration-300 border border-primary/40"
               >
                 <FcGoogle size={28} />
-                <span className="px-8 sm:px-14">Sign up with Google</span>
+                <span className="px-9 sm:px-14 md:px-16">Sign up with Google</span>
               </button>
               <button
                 onClick={handleFacebookSignUp}
-                className="flex items-center gap-6 sm:gap-3 px-4 py-3 font-semibold rounded-full hover:bg-accent hover:scale-105 transition duration-300 border border-primary/40"
+                className="flex items-center gap-6 sm:gap-3 px-4 py-3 font-semibold rounded-full hover:bg-muted hover:scale-105 transition duration-300 border border-primary/40"
               >
                 <FaFacebook size={28} className="text-blue-600" />
-                <span className="px-8 sm:px-14">Sign up with Facebook</span>
+                <span className="px-9 sm:px-14 md:px-16">Sign up with Facebook</span>
               </button>
             </div>
-            <div className="text-center space-y-2">
-              <p className="text-primary/70">
+            <div className="font-medium text-center">
+              <p className="text-sm text-primary/70 mb-14">
                 Already have an account?{" "}
                 <button
                   onClick={handleSignInClick}
-                  className="text-primary/70 hover:text-primary/80"
+                  className="text-primary/90 hover:text-primary transition-all duration-300"
                 >
                   Sign In
                 </button>
               </p>
-              <Link href="/" className="block text-primary/70 hover:text-primary/80">
-                Terms and Service
-              </Link>
+              <div className="text-xs text-primary/80 mb-2">
+                  By signing in, you agree to the{' '}
+                <Link href="/terms" className="font-semibold text-accent hover:underline">
+                  Terms of Service
+                </Link>{' '}
+                  and{' '}
+                <Link href="/privacy" className="font-semibold text-accent hover:underline">
+                  Privacy Policy
+                </Link>.
+              </div>
             </div>
           </div>
         </div>
