@@ -2,10 +2,10 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { PiListMagnifyingGlassBold } from "react-icons/pi";
-import { PiArrowLineRightBold } from "react-icons/pi";
-import { PiMinusCircleBold } from "react-icons/pi";
-import { PiArrowSquareOutBold } from "react-icons/pi";
+import { PiListMagnifyingGlass } from "react-icons/pi";
+import { PiArrowLineRight } from "react-icons/pi";
+import { PiMinusCircle } from "react-icons/pi";
+import { PiArrowSquareOut } from "react-icons/pi";
 import DeleteModal from './DeleteModal';
 import NewSearch from './NewSearch';
 
@@ -118,7 +118,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
           className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-muted hover:text-primary transition-all duration-300"
           aria-label="Toggle search sessions"
         >
-          <PiListMagnifyingGlassBold size={28} />
+          <PiListMagnifyingGlass size={28} />
         </button>
         <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs px-2 py-1 rounded bg-muted opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
           Searches
@@ -150,7 +150,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
                 className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-muted hover:text-primary transition-all duration-300"
                 aria-label="Close sessions panel"
               >
-                <PiArrowLineRightBold size={24} />
+                <PiArrowLineRight size={24} />
               </button>
               <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] text-xs px-2 py-1 rounded bg-muted opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
                 Close
@@ -189,7 +189,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
                               className="p-1 text-primary/80 transition-all duration-300 hover:text-sky-600"
                               aria-label="Open in new tab"
                             >
-                              <PiArrowSquareOutBold size={20} />
+                              <PiArrowSquareOut size={20} />
                             </button>
                             <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs bg-muted px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-1.75rem] whitespace-nowrap">
                               Open in new tab
@@ -204,7 +204,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
                             className="p-1 text-primary/80 transition-all duration-300 hover:text-danger"
                             aria-label="Delete session"
                           >
-                            <PiMinusCircleBold size={20} />
+                            <PiMinusCircle size={20} />
                           </button>
                           <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs bg-muted px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-1.75rem] whitespace-nowrap">
                             Delete

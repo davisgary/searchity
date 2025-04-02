@@ -95,8 +95,8 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-secondary w-full pt-4 px-3 sm:px-5">
-      <div className="w-full flex items-center rounded-2xl border-2 border-primary/70 h-16 pl-0 focus-within:border-primary/90 overflow-hidden">
+    <div className="sticky top-0 z-10 w-full max-w-3xl pt-4 px-3 sm:px-5">
+      <div className="w-full flex items-center bg-main rounded-2xl border border-primary/20 h-16 pl-0 shadow-sm focus-within:border-primary/30 overflow-hidden">
         <input
           ref={inputRef}
           value={input}

@@ -7,38 +7,30 @@
     --main: 0 0% 100%;
     --primary: 0 0% 9%;
     --secondary: 0 0% 98%;
-    --muted: 0 0% 91%;
+    --muted: 0 0% 94%;
     --accent: 211 60% 30%;
     --brand: 30 100% 50%;
     --success: 120 100% 40%;
     --warning: 39 100% 50%;
     --danger: 0 75% 50%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --shadow: 0 0 6px rgba(0,0,0,0.2);
   }
 
   .dark {
     --main: 0 0% 3.9%;
     --primary: 0 0% 100%;
     --secondary: 0 0% 10%;
-    --muted: 0 0% 25%;
+    --muted: 0 0% 20%;
     --accent: 211 68% 56%;
     --brand: 30 100% 60%;
     --success: 120 100% 40%;
     --warning: 39 100% 50%;
     --danger: 0 100% 61%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --shadow: 0 0 6px rgba(255,255,255,0.2);
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   body {
     @apply bg-main text-primary;
   }

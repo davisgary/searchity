@@ -32,8 +32,8 @@ export default function Dropdown({ onSignOut, onDeleteConfirm }: DropdownProps) 
   if (!isOpen) return null;
 
   return (
-    <div className="absolute right-0 mt-3 w-48 bg-main rounded-md shadow-lg z-50 border" ref={dropdownRef}>
-      <div className="p-4 rounded-t-md border-b border-border">
+    <div className="absolute right-0 mt-3 w-48 bg-main rounded-md shadow-lg z-50 border border-primary/10" ref={dropdownRef}>
+      <div className="p-4 rounded-t-md border-b border-primary/10">
         <span className="text-sm">Theme</span>
         <div className="mt-2 flex space-x-2">
           <button
@@ -56,13 +56,13 @@ export default function Dropdown({ onSignOut, onDeleteConfirm }: DropdownProps) 
           </button>
         </div>
       </div>
-      <button onClick={handleSignOutClick} className="w-full flex items-center space-x-2 px-5 py-4 hover:bg-muted">
+      <button onClick={handleSignOutClick} className="w-full flex items-center space-x-2 px-5 py-4 border-b border-primary/10 hover:bg-muted">
         <PiSignOutBold size={18} />
         <span>Sign Out</span>
       </button>
       <button
         onClick={onDeleteConfirm}
-        className="w-full flex items-center space-x-2 px-5 py-4 border-t border-border text-danger hover:bg-muted"
+        className="w-full flex items-center space-x-2 px-5 py-4 text-danger hover:bg-muted"
       >
         <PiUserMinusBold size={18} />
         <span>Delete Account</span>

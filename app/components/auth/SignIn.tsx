@@ -75,7 +75,7 @@ export default function SignIn({
       >
         <div
           ref={modalRef}
-          className={`bg-secondary p-3 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out ${
+          className={`bg-secondary p-3 rounded-lg shadow-full transform transition-all duration-300 ease-in-out ${
             isOpen ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
           }`}
         >

@@ -52,14 +52,16 @@ function IndexContent() {
   }, [sessionId, sessions]);
 
   return (
-    <div className="min-h-screen flex flex-col text-center bg-main px-2">
+    <div className="min-h-screen flex flex-col text-center bg-main">
       <Header sessions={sessions} setSessions={setSessions} />
       <Searches 
         sessionId={sessionId} 
         setSessions={setSessions}
         selectedSession={selectedSession}
       />
-      <footer className="py-4 text-xs">AI can make mistakes. Check your results.</footer>
+      <footer className="w-full max-w-4xl mx-auto border-l border-r border-dashed border-primary/10 py-4 text-xs">
+        AI can make mistakes. Check your results.
+      </footer>
     </div>
   );
 }

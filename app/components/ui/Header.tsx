@@ -84,7 +84,7 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
   };
 
   return (
-    <header className="w-full max-w-7xl mx-auto flex items-center justify-between px-6 md:px-12 py-4 mb-5 sm:mb-10" style={{ height: '64px' }}>
+    <header className="w-full mx-auto flex items-center justify-between border-b border-dashed border-primary/10 px-3 md:px-12 py-4" style={{ height: '64px' }}>
       <Link href="/">
         <span className="text-xl font-semibold">Search</span>
       </Link>

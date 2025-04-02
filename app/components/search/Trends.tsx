@@ -61,8 +61,8 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
   }
 
   return (
-    <div className="pt-4 w-full text-left">
-      <p className="flex items-center text-left text-xs tracking-widest text-primary/90 mx-2 px-3 sm:px-5">
+    <div className="pt-3 w-full text-left">
+      <p className="flex items-center text-left text-xs tracking-widest text-primary/90 mx-2 pb-1 pl-3 sm:pl-10 md:pl-14 lg:pl-20">
         Trending
         <PiTrendUpBold size={16} className="mx-1" />
       </p>

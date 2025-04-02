@@ -19,9 +19,9 @@ const config: Config = {
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
         danger: "hsl(var(--danger))",
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+      },
+      boxShadow: {
+        full: 'var(--shadow)',
       },
     },
   },
