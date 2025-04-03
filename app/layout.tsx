@@ -4,14 +4,14 @@ import { Theme } from "./theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Search",
+  title: "SearchAI",
   description: "Search the web with AI",
   openGraph: {
     type: "website",
     locale: "en_US",
-    title: "Search",
+    title: "SearchAI",
     images: ["/meta.png"],
-    siteName: "Search",
+    siteName: "SearchAI",
   },
 };
 

@@ -18,7 +18,7 @@ const DeleteModal = ({
 }: DeleteModalProps) => {
   return (
     <div 
-      className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out ${
+      className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out pb-10 md:pb-32 ${
         showModal ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
     >
@@ -27,7 +27,7 @@ const DeleteModal = ({
         onClick={() => setShowModal(false)}
       ></div>
       <div 
-        className={`relative bg-secondary text-primary rounded-lg p-6 w-full max-w-lg flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`relative bg-secondary text-primary shadow-full rounded-lg p-6 w-full max-w-lg flex flex-col transition-transform duration-300 ease-in-out ${
           showModal ? 'translate-y-0' : '-translate-y-10'
         }`}
       >

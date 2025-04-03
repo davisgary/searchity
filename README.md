@@ -1,4 +1,4 @@
-<h1>AI Search</h1>
+<h1>Search AI</h1>
 Search the web with AI
 
 ## Getting Started

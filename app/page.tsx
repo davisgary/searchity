@@ -59,8 +59,8 @@ function IndexContent() {
         setSessions={setSessions}
         selectedSession={selectedSession}
       />
-      <footer className="w-full max-w-4xl mx-auto border-l border-r border-dashed border-primary/10 py-4 text-xs">
-        AI can make mistakes. Check your results.
+      <footer className="w-full max-w-4xl mx-auto border-l border-r border-dashed border-primary/10 py-4 text-xs font-medium">
+        SearchAI can make mistakes. Check your results.
       </footer>
     </div>
   );

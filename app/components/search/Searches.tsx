@@ -227,7 +227,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-start flex-grow bg-main md:border-l md:border-r border-b border-dashed border-primary/10 py-10">
-      <h1 className="pb-2 font-semibold tracking-tight text-3xl sm:text-4xl md:text-5xl">
+      <h1 className="pb-2 font-semibold tracking-tighter text-3xl sm:text-4xl md:text-5xl">
         Search the Web with AI
       </h1>
       <SearchBar handleSearch={handleSearch} isLoading={isLoading} />
@@ -263,7 +263,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
         </div>
       ))}
       {isLoading && (
-        <div ref={streamingRef} className="mt-4 w-full text-left">
+        <div ref={streamingRef} className="w-full text-left mt-4 px-2 sm:px-7">
           {currentSummary && <Summary summary={currentSummary} />}
           <Loading isLoading={isLoading} />
         </div>

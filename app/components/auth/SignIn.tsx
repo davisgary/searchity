@@ -82,7 +82,7 @@ export default function SignIn({
           <div className="relative group w-fit ml-auto">
             <button
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center text-lg text-primary w-8 h-8 rounded-full transition-all duration-300 hover:bg-muted hover:scale-105"
+              className="flex items-center justify-center text-xl text-primary w-8 h-8 mr-1 rounded-full transition-all duration-300 hover:bg-muted hover:scale-105"
               aria-label="Close modal"
             >
               ✕
@@ -92,7 +92,7 @@ export default function SignIn({
             </span>
           </div>
           <div className="px-6 sm:px-8 md:px-10">
-            <h2 className="text-4xl sm:text-5xl font-semibold mb-5">
+            <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight mb-5">
               Sign in to<br />start searching
             </h2>
             <div className="flex flex-col gap-4 mb-5 tracking-wide">
