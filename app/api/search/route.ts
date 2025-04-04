@@ -54,7 +54,7 @@ async function fetchImageFromPage(url: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { message } = await req.json();
+    const { message, sessionId } = await req.json();
     if (!message) throw new Error("Missing message in request.");
 
     const userId = req.cookies.get("userId")?.value;
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
     const summarizedContent = searchResults.map((item) => `- ${item.title}: ${item.snippet}`).join("\n");
 
     console.time("OpenAI Summary");
-    const systemMessage = `Based on '" + message + "' and the search results, start with a short opening sentence that dives into the topic. Then list two or three key points from the results that answer what they're asking, keeping it natural and to the point. Use bullet points, one per line, and end with a brief closing sentence. Mix up the wording each time to avoid sounding the same.`;
+    const systemMessage = `Based on the query "${message}", start with a concise answer if the query asks for a specific fact (e.g., a date, location, or definition), using the search results to confirm or refine it. If the query is broad or results lack a clear answer, provide a brief overview instead. Then list 2-3 key points from the results that directly address the query, using bullet points, one per line. Keep it clear, natural, and focused on the user’s intent. End with a short sentence tying back to their question.`;
     const streamCompletion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       stream: true,
@@ -164,33 +164,43 @@ export async function POST(req: NextRequest) {
             suggestions,
           };
 
-          let sessionId: number | undefined;
+          let finalSessionId: number | undefined;
           if (isLoggedIn) {
             console.time("DB Update");
-            const latestSession = await db(
-              'SELECT id, searches FROM search_sessions WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1',
-              [userId]
-            );
-
-            if (!latestSession.length || latestSession[0].searches.length >= 10) {
+            if (sessionId) {
+              const sessionResult = await db(
+                'SELECT searches FROM search_sessions WHERE id = $1 AND user_id = $2',
+                [sessionId, userId]
+              );
+              if (sessionResult.length && sessionResult[0].searches.length < 10) {
+                const currentSearches = sessionResult[0].searches;
+                currentSearches.push(newSearchEntry);
+                await db(
+                  'UPDATE search_sessions SET searches = $1, updated_at = NOW() WHERE id = $2 AND user_id = $3',
+                  [JSON.stringify(currentSearches), sessionId, userId]
+                );
+                finalSessionId = parseInt(sessionId);
+                console.log("Appended to session:", finalSessionId, "searches:", currentSearches);
+              } else {
+                const result = await db(
+                  'INSERT INTO search_sessions (user_id, searches, updated_at) VALUES ($1, $2, NOW()) RETURNING id',
+                  [userId, JSON.stringify([newSearchEntry])]
+                );
+                finalSessionId = result[0].id;
+                console.log("New session created due to limit or invalid session ID:", finalSessionId);
+              }
+            } else {
               const result = await db(
-                'INSERT INTO search_sessions (user_id, searches) VALUES ($1, $2) RETURNING id',
+                'INSERT INTO search_sessions (user_id, searches, updated_at) VALUES ($1, $2, NOW()) RETURNING id',
                 [userId, JSON.stringify([newSearchEntry])]
               );
-              sessionId = result[0].id;
-            } else {
-              const currentSearches = latestSession[0].searches;
-              currentSearches.push(newSearchEntry);
-              await db(
-                'UPDATE search_sessions SET searches = $1, updated_at = NOW() WHERE id = $2',
-                [JSON.stringify(currentSearches), latestSession[0].id]
-              );
-              sessionId = latestSession[0].id;
+              finalSessionId = result[0].id;
+              console.log("New session created with ID:", finalSessionId);
             }
             console.timeEnd("DB Update");
           }
 
-          controller.enqueue(encoder.encode(JSON.stringify({ final: true, searchResults, suggestions, sessionId }) + "\n"));
+          controller.enqueue(encoder.encode(JSON.stringify({ final: true, searchResults, suggestions, sessionId: finalSessionId }) + "\n"));
           controller.close();
         } catch (err) {
           controller.error(err);

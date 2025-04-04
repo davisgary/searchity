@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { PiNotePencilBold } from "react-icons/pi";
+import { useRouter } from "next/navigation";
 
 interface NewSearchProps {
   onClick?: () => void;
@@ -9,11 +10,19 @@ interface NewSearchProps {
 }
 
 export default function NewSearch({ onClick, className = "" }: NewSearchProps) {
+  const router = useRouter();
+
+  const handleNewSearch = () => {
+    if (onClick) onClick();
+    router.push("/");
+    router.refresh();
+  };
+
   return (
     <div className={`relative group z-10 ${className}`}>
       <Link
         href="/"
-        onClick={onClick}
+        onClick={handleNewSearch}
         className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-muted hover:text-primary transition-all duration-300"
         aria-label="Create New Search"
       >

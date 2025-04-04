@@ -30,61 +30,43 @@ interface SearchesProps {
   sessionId: string | null;
   setSessions: React.Dispatch<React.SetStateAction<Session[]>>;
   selectedSession: Session | null;
+  isLoggedIn: boolean;
+  onNewSearch?: () => void;
 }
 
-export default function Searches({ sessionId: initialSessionId, setSessions, selectedSession }: SearchesProps): ReactNode {
+export default function Searches({ sessionId: initialSessionId, setSessions, selectedSession, isLoggedIn, onNewSearch }: SearchesProps): ReactNode {
   const [displayedSearches, setDisplayedSearches] = useState<Search[]>([]);
   const [currentSummary, setCurrentSummary] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(initialSessionId);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
   const router = useRouter();
   const streamingRef = useRef<HTMLDivElement>(null);
   const latestSearchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (selectedSession) {
-      setDisplayedSearches(selectedSession.searches || []);
-      setCurrentSessionId(selectedSession.id.toString());
-    } else if (!initialSessionId) {
-      setDisplayedSearches([]);
-      setCurrentSessionId(null);
-    }
-  }, [selectedSession, initialSessionId]);
+    console.log("useEffect - isSearching:", isSearching, "isLoading:", isLoading, "isLoggedIn:", isLoggedIn, "selectedSession:", selectedSession, "initialSessionId:", initialSessionId, "currentSessionId:", currentSessionId, "displayedSearches:", displayedSearches);
+    if (isSearching || isLoading) return;
 
-  useEffect(() => {
-    async function fetchSession() {
-      if (!initialSessionId || selectedSession) return;
-      try {
-        console.time("Session Fetch");
-        const response = await fetch("/api/sessions");
-        if (!response.ok) throw new Error("Failed to fetch sessions");
-        const data = await response.json();
-        const session = data.sessions.find((s: any) => s.id === parseInt(initialSessionId));
-        if (session) {
-          setDisplayedSearches(session.searches);
-          setSessions(data.sessions);
-          setCurrentSessionId(initialSessionId);
-        }
-        console.timeEnd("Session Fetch");
-      } catch (error) {
-        console.error("Error fetching session:", error);
-        setError("Failed to load session");
-      }
+    if (isLoggedIn && initialSessionId && selectedSession && selectedSession.id.toString() === initialSessionId) {
+      console.log("Loading session:", selectedSession.searches);
+      setDisplayedSearches(selectedSession.searches || []);
+      setCurrentSessionId(initialSessionId);
+    } else if (!initialSessionId && displayedSearches.length === 0) {
+      console.log("No initialSessionId and no searches - resetting to blank");
+      setCurrentSessionId(null);
+      setCurrentSummary("");
     }
-    if (initialSessionId && !selectedSession) fetchSession();
-  }, [initialSessionId, setSessions, selectedSession]);
+  }, [selectedSession, initialSessionId, isSearching, isLoading, isLoggedIn, displayedSearches]);
 
   const handleSearch = useCallback(
     async (query: string) => {
       const trimmedQuery = query.trim();
       if (!trimmedQuery) return;
 
-      if (currentSessionId && displayedSearches.length >= 10) {
-        setError("This session is full (10 searches max). Start a new one!");
-        return;
-      }
-
+      console.log("Starting search:", trimmedQuery, "isLoggedIn:", isLoggedIn, "currentSessionId:", currentSessionId);
+      setIsSearching(true);
       setIsLoading(true);
       setError(null);
       setCurrentSummary("");
@@ -94,7 +76,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
         const response = await fetch("/api/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: trimmedQuery }),
+          body: JSON.stringify({ message: trimmedQuery, sessionId: currentSessionId }),
         });
         if (!response.ok) throw new Error(`Search API failed: ${await response.text()}`);
         console.timeEnd("Search API");
@@ -108,6 +90,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
         let finalResults: any[] = [];
         let finalSuggestions: string[] = [];
         let newSearch: Search | null = null;
+        let newSessionId: number | undefined;
 
         console.time("Stream Processing");
         while (true) {
@@ -130,6 +113,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
             if (parsed.final) {
               finalResults = parsed.searchResults || [];
               finalSuggestions = parsed.suggestions || [];
+              newSessionId = parsed.sessionId;
               newSearch = {
                 query: trimmedQuery,
                 summary,
@@ -137,70 +121,55 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
                 suggestions: finalSuggestions,
                 timestamp: new Date().toISOString(),
               };
-              setDisplayedSearches((prev) => [...prev, newSearch!]);
-              await addToSession(newSearch);
+              console.log("New search:", newSearch, "sessionId:", newSessionId);
+              setDisplayedSearches((prev) => {
+                if (isLoggedIn && newSessionId && currentSessionId !== newSessionId.toString()) {
+                  return [newSearch!];
+                }
+                return [...prev, newSearch!];
+              });
             }
           }
         }
         console.timeEnd("Stream Processing");
+
+        if (isLoggedIn && newSessionId) {
+          setCurrentSessionId(newSessionId.toString());
+          setSessions((prev) => {
+            const existingSessionIndex = prev.findIndex((s) => s.id === newSessionId);
+            if (existingSessionIndex >= 0) {
+              const updatedSession = { ...prev[existingSessionIndex], searches: [...prev[existingSessionIndex].searches, newSearch!], updated_at: new Date().toISOString() };
+              return [updatedSession, ...prev.filter((s) => s.id !== newSessionId)];
+            } else {
+              const newSession: Session = {
+                id: newSessionId,
+                user_id: "current_user_id",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                searches: [newSearch!],
+              };
+              return [newSession, ...prev];
+            }
+          });
+
+          const sessionsResponse = await fetch("/api/sessions");
+          if (sessionsResponse.ok) {
+            const sessionsData = await sessionsResponse.json();
+            console.log("Fetched updated sessions from /sessions:", sessionsData.sessions);
+            setSessions(sessionsData.sessions || []);
+          }
+
+          router.push(`/?sessionId=${newSessionId}`);
+        }
       } catch (error) {
         console.error("Search error:", error);
         setError("Search failed");
       } finally {
         setIsLoading(false);
-      }
-
-      async function addToSession(search: Search) {
-        try {
-          console.time("Add-to-Session API");
-          const addResponse = await fetch("/api/sessions/add-to", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sessionId: currentSessionId ? parseInt(currentSessionId) : null, ...search }),
-          });
-          const addData = await addResponse.json();
-          console.timeEnd("Add-to-Session API");
-
-          if (!addData.success) {
-            if (addData.limitReached) setError(addData.message);
-            else throw new Error(`Add-to-session failed: ${addData.error || "Unknown error"}`);
-            return;
-          }
-
-          if (addData.isNewSession || !currentSessionId) {
-            setCurrentSessionId(addData.sessionId);
-            router.push(`/?sessionId=${addData.sessionId}`);
-            setSessions((prev) => {
-              const newSession: Session = {
-                id: addData.sessionId,
-                user_id: "current_user_id",
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                searches: addData.updatedSearches,
-              };
-              return [newSession, ...prev.filter((s) => s.id !== newSession.id)];
-            });
-          } else {
-            setDisplayedSearches(addData.updatedSearches);
-            setSessions((prev) => {
-              const updatedSession: Session = {
-                id: parseInt(currentSessionId!),
-                user_id: "current_user_id",
-                created_at: prev.find((s) => s.id === parseInt(currentSessionId!))?.created_at || new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                searches: addData.updatedSearches,
-              };
-              return prev.map((s) => (s.id === updatedSession.id ? updatedSession : s));
-            });
-          }
-        } catch (error) {
-          console.error("Add-to-session error:", error);
-          setError("Failed to add search to session");
-          setDisplayedSearches((prev) => prev.filter((s) => s.query !== search.query));
-        }
+        setIsSearching(false);
       }
     },
-    [displayedSearches, currentSessionId, router, setSessions]
+    [router, setSessions, isLoggedIn, currentSessionId]
   );
 
   useEffect(() => {
@@ -225,6 +194,8 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
     }
   }, [displayedSearches, isLoading]);
 
+  console.log("Rendering - displayedSearches:", displayedSearches, "isLoggedIn:", isLoggedIn, "isSearching:", isSearching);
+
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-start flex-grow bg-main md:border-l md:border-r border-b border-dashed border-primary/10 py-10">
       <h1 className="pb-2 font-semibold tracking-tighter text-3xl sm:text-4xl md:text-5xl">
@@ -247,19 +218,19 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
           </div>
           {search.results.length > 0 && <Results results={search.results} />}
           {(search.summary || search.results.length > 0) && (
-          <div className="px-2 sm:px-7">
-            <p className="my-4">
-              Search for "{search.query.replace(/^\d+\.\s*/, "").replace(/"/g, "")}"
-            </p>
-            {search.suggestions.length > 0 && (
-              <Suggestions
-                suggestions={search.suggestions}
-                handleSearch={handleSearch}
-                isLoading={isLoading}
-              />
-            )}
-          </div>
-        )}
+            <div className="px-2 sm:px-7">
+              <p className="my-4">
+                Search for "{search.query.replace(/^\d+\.\s*/, "").replace(/"/g, "")}"
+              </p>
+              {search.suggestions.length > 0 && (
+                <Suggestions
+                  suggestions={search.suggestions}
+                  handleSearch={handleSearch}
+                  isLoading={isLoading}
+                />
+              )}
+            </div>
+          )}
         </div>
       ))}
       {isLoading && (
