@@ -5,17 +5,19 @@ import { PiNotePencilBold } from "react-icons/pi";
 import { useRouter } from "next/navigation";
 
 interface NewSearchProps {
-  onClick?: () => void;
+  onNewSearch?: () => void;
   className?: string;
 }
 
-export default function NewSearch({ onClick, className = "" }: NewSearchProps) {
+export default function NewSearch({ onNewSearch, className = "" }: NewSearchProps) {
   const router = useRouter();
 
   const handleNewSearch = () => {
-    if (onClick) onClick();
-    router.push("/");
-    router.refresh();
+    if (onNewSearch) {
+      onNewSearch();
+    } else {
+      router.push("/");
+    }
   };
 
   return (

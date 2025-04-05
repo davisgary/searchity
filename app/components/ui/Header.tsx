@@ -27,9 +27,10 @@ interface Session {
 interface HeaderProps {
   sessions: Session[];
   setSessions: React.Dispatch<React.SetStateAction<Session[]>>;
+  onNewSearch?: () => void;
 }
 
-export default function Header({ sessions, setSessions }: HeaderProps) {
+export default function Header({ sessions, setSessions, onNewSearch }: HeaderProps) {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userImage, setUserImage] = useState<string | undefined>(undefined);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
@@ -95,10 +96,11 @@ export default function Header({ sessions, setSessions }: HeaderProps) {
           <>
             {isSignedIn && (
               <>
-                <NewSearch onClick={() => {}} />
+                <NewSearch onNewSearch={onNewSearch} />
                 <SearchesModal
                   sessions={sessions}
                   setSessions={setSessions}
+                  onNewSearch={onNewSearch}
                   className="mx-4"
                 />
                 <Account

@@ -26,10 +26,11 @@ interface Session {
 interface SearchesModalProps {
   sessions: Session[];
   setSessions: React.Dispatch<React.SetStateAction<Session[]>>;
+  onNewSearch?: () => void;
   className?: string;
 }
 
-export default function SearchesModal({ sessions, setSessions, className }: SearchesModalProps) {
+export default function SearchesModal({ sessions, setSessions, onNewSearch, className }: SearchesModalProps) {
   const [showSessions, setShowSessions] = useState(false);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [showDeleteSingleConfirm, setShowDeleteSingleConfirm] = useState<number | null>(null);
@@ -54,7 +55,6 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
       setSessions(sessions.filter((session) => session.id !== sessionId));
       setShowDeleteSingleConfirm(null);
     } catch (error) {
-      console.error("Error deleting session:", error);
     }
   };
 
@@ -70,7 +70,6 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
       setShowSessions(false);
       setShowDeleteAllConfirm(false);
     } catch (error) {
-      console.error("Error deleting all sessions:", error);
     }
   };
 
@@ -89,15 +88,30 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
     }
   };
 
+  const handleNewSearchClick = () => {
+    if (onNewSearch) {
+      onNewSearch();
+      setShowSessions(false);
+    }
+  };
+
   const groupSessionsByDate = () => {
     const grouped: { [key: string]: Session[] } = {};
+    const offset = new Date().getTimezoneOffset() * 60000;
+
     sessions.forEach((session) => {
-      const date = new Date(session.created_at).toLocaleDateString("en-US", {
+      const sessionDate = new Date(session.created_at);
+      if (isNaN(sessionDate.getTime())) return;
+
+      const localTime = new Date(sessionDate.getTime() - offset);
+      const localDate = new Date(localTime.getFullYear(), localTime.getMonth(), localTime.getDate());
+      const date = localDate.toLocaleDateString("en-US", {
         weekday: "long",
         year: "numeric",
         month: "long",
         day: "numeric",
       });
+
       if (!grouped[date]) grouped[date] = [];
       grouped[date].push(session);
     });
@@ -106,7 +120,11 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
 
   const groupedSessions = groupSessionsByDate();
   const sortedDates = Object.keys(groupedSessions).sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime()
+    (a, b) => {
+      const dateA = new Date(a.split(",")[1].trim() + " " + new Date().getFullYear());
+      const dateB = new Date(b.split(",")[1].trim() + " " + new Date().getFullYear());
+      return dateB.getTime() - dateA.getTime();
+    }
   );
 
   return (
@@ -139,9 +157,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
       >
         <div className="flex justify-between items-center px-3">
           <div style={{ width: 'fit-content', marginTop: '0.35rem' }}>
-            <NewSearch
-              onClick={() => setShowSessions(false)}
-            />
+            <NewSearch onNewSearch={handleNewSearchClick} />
           </div>
           <div className="relative group" style={{ width: 'fit-content', marginTop: '0.25rem' }}>
             <button
@@ -162,7 +178,7 @@ export default function SearchesModal({ sessions, setSessions, className }: Sear
               onClick={() => setShowSessions(false)}
               className="flex flex-row items-center justify-center space-x-2 w-full py-2"
             >
-              <NewSearch />
+              <NewSearch onNewSearch={handleNewSearchClick} />
               <span className="text-lg font-medium">Start your first search</span>
             </button>
           ) : (

@@ -46,40 +46,35 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
   const latestSearchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log("useEffect - isSearching:", isSearching, "isLoading:", isLoading, "isLoggedIn:", isLoggedIn, "selectedSession:", selectedSession, "initialSessionId:", initialSessionId, "currentSessionId:", currentSessionId, "displayedSearches:", displayedSearches);
     if (isSearching || isLoading) return;
 
     if (isLoggedIn && initialSessionId && selectedSession && selectedSession.id.toString() === initialSessionId) {
-      console.log("Loading session:", selectedSession.searches);
       setDisplayedSearches(selectedSession.searches || []);
       setCurrentSessionId(initialSessionId);
-    } else if (!initialSessionId && displayedSearches.length === 0) {
-      console.log("No initialSessionId and no searches - resetting to blank");
+    } else if (isLoggedIn && !initialSessionId) {
+      setDisplayedSearches([]);
       setCurrentSessionId(null);
       setCurrentSummary("");
     }
-  }, [selectedSession, initialSessionId, isSearching, isLoading, isLoggedIn, displayedSearches]);
+  }, [selectedSession, initialSessionId, isSearching, isLoading, isLoggedIn]);
 
   const handleSearch = useCallback(
     async (query: string) => {
       const trimmedQuery = query.trim();
       if (!trimmedQuery) return;
 
-      console.log("Starting search:", trimmedQuery, "isLoggedIn:", isLoggedIn, "currentSessionId:", currentSessionId);
       setIsSearching(true);
       setIsLoading(true);
       setError(null);
       setCurrentSummary("");
 
       try {
-        console.time("Search API");
         const response = await fetch("/api/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: trimmedQuery, sessionId: currentSessionId }),
         });
         if (!response.ok) throw new Error(`Search API failed: ${await response.text()}`);
-        console.timeEnd("Search API");
 
         const reader = response.body?.getReader();
         if (!reader) throw new Error("Readable stream not supported");
@@ -92,7 +87,6 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
         let newSearch: Search | null = null;
         let newSessionId: number | undefined;
 
-        console.time("Stream Processing");
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -121,7 +115,6 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
                 suggestions: finalSuggestions,
                 timestamp: new Date().toISOString(),
               };
-              console.log("New search:", newSearch, "sessionId:", newSessionId);
               setDisplayedSearches((prev) => {
                 if (isLoggedIn && newSessionId && currentSessionId !== newSessionId.toString()) {
                   return [newSearch!];
@@ -131,7 +124,6 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
             }
           }
         }
-        console.timeEnd("Stream Processing");
 
         if (isLoggedIn && newSessionId) {
           setCurrentSessionId(newSessionId.toString());
@@ -155,14 +147,12 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
           const sessionsResponse = await fetch("/api/sessions");
           if (sessionsResponse.ok) {
             const sessionsData = await sessionsResponse.json();
-            console.log("Fetched updated sessions from /sessions:", sessionsData.sessions);
             setSessions(sessionsData.sessions || []);
           }
 
           router.push(`/?sessionId=${newSessionId}`);
         }
       } catch (error) {
-        console.error("Search error:", error);
         setError("Search failed");
       } finally {
         setIsLoading(false);
@@ -193,8 +183,6 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
       return () => clearTimeout(timeout);
     }
   }, [displayedSearches, isLoading]);
-
-  console.log("Rendering - displayedSearches:", displayedSearches, "isLoggedIn:", isLoggedIn, "isSearching:", isSearching);
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-start flex-grow bg-main md:border-l md:border-r border-b border-dashed border-primary/10 py-10">
