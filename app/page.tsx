@@ -80,7 +80,7 @@ function IndexContent() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex flex-col text-center bg-main">
+    <div className="min-h-screen flex flex-col text-center bg-main px-2 lg:px-0">
       <Header sessions={sessions} setSessions={setSessions} onNewSearch={handleNewSearch} />
       {authError && <p className="text-danger">{authError}</p>}
       <Searches 

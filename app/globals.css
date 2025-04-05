@@ -33,5 +33,6 @@
 @layer base {
   body {
     @apply bg-main text-primary;
+    font-family: 'Inter', sans-serif;
   }
 }

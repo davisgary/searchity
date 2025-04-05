@@ -85,7 +85,7 @@ export default function Header({ sessions, setSessions, onNewSearch }: HeaderPro
   };
 
   return (
-    <header className="w-full mx-auto flex items-center justify-between border-b border-dashed border-primary/10 px-3 md:px-12 py-4" style={{ height: '64px' }}>
+    <header className="w-full max-w-4xl lg:max-w-none mx-auto flex items-center justify-between border-l border-r lg:border-l-0 lg:border-r-0 border-b border-dashed border-primary/10 px-3 md:px-12 py-4" style={{ height: '64px' }}>
       <Link href="/">
         <span className="text-xl font-semibold tracking-tighter">SearchAI</span>
       </Link>
