@@ -66,7 +66,7 @@ export default function SignIn({
         </span>
       </div>
       <div
-        className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out pb-10 md:pb-32 ${
+        className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out px-2 pb-10 md:pb-32 ${
           isOpen
             ? "bg-main/50 bg-opacity-75 backdrop-blur-sm opacity-100"
             : "bg-opacity-0 opacity-0 pointer-events-none"
@@ -101,14 +101,14 @@ export default function SignIn({
                 className="flex items-center gap-6 sm:gap-3 px-4 py-3 font-semibold rounded-full hover:bg-muted hover:scale-105 transition duration-300 border border-primary/40"
               >
                 <FcGoogle size={28} />
-                <span className="px-9 sm:px-14 md:px-16">Sign in with Google</span>
+                <span className="px-6 sm:px-14 md:px-16">Sign in with Google</span>
               </button>
               <button
                 onClick={handleFacebookSignIn}
                 className="flex items-center gap-6 sm:gap-3 px-4 py-3 font-semibold rounded-full hover:bg-muted hover:scale-105 transition duration-300 border border-primary/40"
               >
                 <FaFacebook size={28} className="text-blue-600" />
-                <span className="px-9 sm:px-14 md:px-16">Sign in with Facebook</span>
+                <span className="px-6 sm:px-14 md:px-16">Sign in with Facebook</span>
               </button>
             </div>
             <div className="font-medium text-center">

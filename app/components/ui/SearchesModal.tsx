@@ -142,7 +142,7 @@ export default function SearchesModal({ sessions, setSessions, onNewSearch, clas
       </span>
     </div>
     <div
-      className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out ${
+      className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out px-2 ${
         showSessions
           ? "bg-main/50 bg-opacity-75 backdrop-blur-sm opacity-100"
           : "bg-opacity-0 opacity-0 pointer-events-none"
@@ -151,7 +151,7 @@ export default function SearchesModal({ sessions, setSessions, onNewSearch, clas
     >
       <div
         ref={panelRef}
-        className={`bg-secondary p-3 rounded-lg shadow-full transform transition-all duration-300 ease-in-out w-11/12 sm:w-full max-w-2xl max-h-[80vh] flex flex-col ${
+        className={`bg-secondary p-3 rounded-lg shadow-full transform transition-all duration-300 ease-in-out w-full max-w-2xl max-h-[80vh] flex flex-col ${
           showSessions ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
         }`}
       >

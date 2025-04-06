@@ -9,12 +9,11 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({ handleSearch, isLoading = false }: SearchBarProps) {
-  const [userInput, setUserInput] = useState("");
-  const [displayText, setDisplayText] = useState("");
+  const [input, setInput] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const [isUserTyping, setIsUserTyping] = useState(false);
+  const [isPlaceholderActive, setIsPlaceholderActive] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const placeholders = [
     "What's happening around the world today?",
@@ -44,7 +43,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
   ];
 
   useEffect(() => {
-    if (!isUserTyping) {
+    if (isPlaceholderActive) {
       let currentText = "";
       const currentPlaceholder = placeholders[placeholderIndex];
       let charIndex = 0;
@@ -52,12 +51,20 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
       const typeInterval = setInterval(() => {
         if (charIndex < currentPlaceholder.length) {
           currentText = currentPlaceholder.slice(0, charIndex + 1);
-          setDisplayText(currentText);
+          setInput(currentText);
+          if (inputRef.current && inputRef.current.scrollWidth > inputRef.current.clientWidth) {
+            requestAnimationFrame(() => {
+              if (inputRef.current) {
+                inputRef.current.scrollLeft = inputRef.current.scrollWidth + 8;
+              }
+            });
+          }
           charIndex++;
         } else {
           clearInterval(typeInterval);
-          animationRef.current = window.setTimeout(() => {
-            setDisplayText("");
+          animationRef.current = setTimeout(() => {
+            if (inputRef.current) inputRef.current.scrollLeft = 0;
+            setInput("");
             setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
           }, 3000);
         }
@@ -65,47 +72,31 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
 
       return () => {
         clearInterval(typeInterval);
-        if (animationRef.current) {
-          clearTimeout(animationRef.current);
-        }
+        if (animationRef.current) clearTimeout(animationRef.current);
+        if (inputRef.current) inputRef.current.scrollLeft = 0;
       };
     }
-  }, [isUserTyping, placeholderIndex, placeholders.length]);
+  }, [isPlaceholderActive, placeholderIndex, placeholders.length]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newInput = e.target.value;
-    setUserInput(newInput);
-    setDisplayText(newInput);
-    setIsUserTyping(true);
-    if (animationRef.current) {
-      clearTimeout(animationRef.current);
-    }
+    setInput(e.target.value);
+    setIsPlaceholderActive(false);
   };
 
   const handleFocus = () => {
-    if (!isUserTyping) {
-      setUserInput("");
-      setDisplayText("");
-      setIsUserTyping(true);
+    if (isPlaceholderActive) {
+      setInput("");
+      setIsPlaceholderActive(false);
     }
   };
 
-  const handleBlur = () => {
-    if (!userInput.trim()) {
-      setIsUserTyping(false);
-      setUserInput("");
-      setDisplayText("");
-    }
-  };
-
-  const isInputValid = userInput.trim().length > 0;
+  const isInputValid = input.trim().length > 0 && !isPlaceholderActive;
 
   const onSearch = () => {
     if (isInputValid) {
-      handleSearch(userInput);
-      setUserInput("");
-      setDisplayText("");
-      setIsUserTyping(false);
+      handleSearch(input);
+      setInput("");
+      setIsPlaceholderActive(true);
     }
   };
 
@@ -114,10 +105,9 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
       <div className="w-full flex items-center h-16 pl-0 bg-main rounded-2xl border border-primary/20 shadow-full focus-within:border-primary/30 overflow-hidden">
         <input
           ref={inputRef}
-          value={displayText}
+          value={input}
           onChange={handleInputChange}
           onFocus={handleFocus}
-          onBlur={handleBlur}
           onKeyDown={(e) => {
             if (e.key === "Enter" && isInputValid) {
               e.preventDefault();
@@ -127,7 +117,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
           aria-label="Enter your search"
           placeholder="Enter your search..."
           className={`flex-1 bg-transparent text-lg leading-normal h-full pl-4 pr-2 focus:outline-none focus:ring-0 overflow-x-auto whitespace-nowrap min-w-0 ${
-            !isUserTyping ? "text-primary/60 placeholder:text-primary/80" : "text-primary placeholder:text-primary/80"
+            isPlaceholderActive ? "text-primary/60 placeholder:text-primary/80" : "text-primary placeholder:text-primary/80"
           }`}
           style={{ direction: "ltr" }}
         />
