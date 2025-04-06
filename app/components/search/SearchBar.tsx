@@ -52,12 +52,20 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
         if (charIndex < currentPlaceholder.length) {
           currentText = currentPlaceholder.slice(0, charIndex + 1);
           setInput(currentText);
-          if (inputRef.current && inputRef.current.scrollWidth > inputRef.current.clientWidth) {
-            requestAnimationFrame(() => {
+          if (inputRef.current) {
+            const scrollToEnd = () => {
               if (inputRef.current) {
-                inputRef.current.scrollLeft = inputRef.current.scrollWidth + 8;
+                const maxScroll = inputRef.current.scrollWidth + 20;
+                inputRef.current.scrollLeft = maxScroll;
+                requestAnimationFrame(() => {
+                  if (inputRef.current) inputRef.current.scrollLeft = maxScroll;
+                  setTimeout(() => {
+                    if (inputRef.current) inputRef.current.scrollLeft = maxScroll;
+                  }, 10);
+                });
               }
-            });
+            };
+            scrollToEnd();
           }
           charIndex++;
         } else {

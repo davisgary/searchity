@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --main: 0 0% 100%;
+    --main: 0 0% 98%;
     --primary: 0 0% 9%;
-    --secondary: 0 0% 98%;
+    --secondary: 0 0% 96%;
     --muted: 0 0% 94%;
     --accent: 211 60% 30%;
     --brand: 30 100% 50%;
@@ -17,9 +17,9 @@
   }
 
   .dark {
-    --main: 0 0% 3.9%;
+    --main: 0 0% 9%;
     --primary: 0 0% 100%;
-    --secondary: 0 0% 10%;
+    --secondary: 0 0% 13%;
     --muted: 0 0% 20%;
     --accent: 211 68% 56%;
     --brand: 30 100% 60%;
