@@ -185,7 +185,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
   }, [displayedSearches, isLoading]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-start flex-grow bg-main border-l border-r border-b border-dashed border-primary/10 py-10">
+    <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-start flex-grow bg-main border-l border-r border-b border-dashed border-primary/10 py-2 sm:py-10">
       <h1 className="pb-2 font-semibold tracking-tighter text-3xl sm:text-4xl md:text-5xl">
         Search the Web with AI
       </h1>

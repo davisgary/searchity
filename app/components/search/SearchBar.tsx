@@ -12,38 +12,35 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
   const [input, setInput] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [isPlaceholderActive, setIsPlaceholderActive] = useState(true);
+  const [placeholders, setPlaceholders] = useState<string[]>([]);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const animationRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  const placeholders = [
-    "What's happening around the world today?",
-    "Top travel destinations in 2025",
-    "Latest advancements in AI",
-    "What are the health benefits of coffee?",
-    "Best smartphones to buy in 2025",
-    "New shows to binge watch",
-    "What are the best ways to save money?",
-    "Why do cats purr?",
-    "How to make the perfect homemade pizza",
-    "What's the fastest car in the world?",
-    "How can I improve my sleep quality?",
-    "What are the best self-help books to read",
-    "Must-listen podcasts of 2025",
-    "Upcoming space missions",
-    "How does machine learning work?",
-    "What are the benefits of meditation?",
-    "The most popular video games of 2025",
-    "How to make the perfect cup of tea",
-    "What are the best ways to reduce stress?",
-    "How to create a successful YouTube channel",
-    "How to improve your mental health",
-    "The best ways to learn a new language",
-    "The best movies of all time",
-    "How to improve your focus?",
-  ];
+  const fetchPlaceholders = async () => {
+    try {
+      const response = await fetch("/api/placeholders");
+      const data = await response.json();
+      if (data.placeholders && data.placeholders.length > 0) {
+        setPlaceholders(data.placeholders);
+        setPlaceholderIndex(0);
+        if (isInitialLoad) {
+          setTimeout(() => setIsInitialLoad(false), 1000);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch placeholders:", error);
+    }
+  };
 
   useEffect(() => {
-    if (isPlaceholderActive) {
+    fetchPlaceholders();
+    const interval = setInterval(fetchPlaceholders, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (isPlaceholderActive && placeholders.length > 0) {
       let currentText = "";
       const currentPlaceholder = placeholders[placeholderIndex];
       let charIndex = 0;
@@ -72,8 +69,14 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
           clearInterval(typeInterval);
           animationRef.current = setTimeout(() => {
             if (inputRef.current) inputRef.current.scrollLeft = 0;
-            setInput("");
-            setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+            const nextIndex = placeholderIndex + 1;
+            if (nextIndex >= placeholders.length) {
+              fetchPlaceholders();
+              setInput("");
+            } else {
+              setInput("");
+              setPlaceholderIndex(nextIndex);
+            }
           }, 3000);
         }
       }, 50);
@@ -84,7 +87,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
         if (inputRef.current) inputRef.current.scrollLeft = 0;
       };
     }
-  }, [isPlaceholderActive, placeholderIndex, placeholders.length]);
+  }, [isPlaceholderActive, placeholderIndex, placeholders]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
@@ -95,6 +98,12 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
     if (isPlaceholderActive) {
       setInput("");
       setIsPlaceholderActive(false);
+    }
+  };
+
+  const handleBlur = () => {
+    if (!input.trim()) {
+      setIsPlaceholderActive(true);
     }
   };
 
@@ -116,6 +125,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
           value={input}
           onChange={handleInputChange}
           onFocus={handleFocus}
+          onBlur={handleBlur}
           onKeyDown={(e) => {
             if (e.key === "Enter" && isInputValid) {
               e.preventDefault();
@@ -123,7 +133,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
             }
           }}
           aria-label="Enter your search"
-          placeholder="Enter your search..."
+          placeholder={isInitialLoad || (!isPlaceholderActive && !input) ? "Enter your search..." : ""}
           className={`flex-1 bg-transparent text-lg leading-normal h-full pl-4 pr-2 focus:outline-none focus:ring-0 overflow-x-auto whitespace-nowrap min-w-0 ${
             isPlaceholderActive ? "text-primary/60 placeholder:text-primary/80" : "text-primary placeholder:text-primary/80"
           }`}
