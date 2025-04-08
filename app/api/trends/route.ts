@@ -1,36 +1,38 @@
 import { NextResponse } from 'next/server';
-import { BigQuery } from '@google-cloud/bigquery';
-import { Buffer } from 'buffer';
+import fetch from 'node-fetch';
 
-const bigquery = new BigQuery({
-  credentials: JSON.parse(Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS!, 'base64').toString('utf-8')),
-});
+const xml2js = require('xml2js') as any;
 
 export async function GET() {
   try {
-    const query = `
-      SELECT
-        term,
-        ARRAY_AGG(STRUCT(rank, week) ORDER BY week DESC LIMIT 1) x
-      FROM
-        \`bigquery-public-data.google_trends.top_terms\`
-      WHERE
-        refresh_date = 
-          (SELECT MAX(refresh_date) FROM \`bigquery-public-data.google_trends.top_terms\`)
-      GROUP BY
-        term
-      ORDER BY
-        (SELECT rank FROM UNNEST(x))
-    `;
+    const response = await fetch('https://trends.google.com/trending/rss?geo=US');
+    if (!response.ok) {
+      throw new Error(`RSS fetch failed: ${response.statusText}`);
+    }
 
-    const [rows] = await bigquery.query(query);
+    const xml = await response.text();
 
-    const trends = rows.map((row: any) => ({
-      term: row.term,
+    const result = await xml2js.parseStringPromise(xml);
+    const items = result.rss.channel[0].item;
+
+    const trends = items.map((item: any) => ({
+      term: item.title[0],
     }));
 
-    return NextResponse.json({ trends });
+    console.log('Fetched Trends from RSS:', trends);
+
+    return NextResponse.json({ trends }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch Google Trends' }, { status: 500 });
+    let errorMessage = 'Unknown error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error && typeof error === 'object' && 'message' in error) {
+      errorMessage = String((error as { message: unknown }).message);
+    }
+
+    console.error('RSS Fetch Error:', errorMessage);
+    return NextResponse.json({ error: 'Failed to fetch Google Trends: ' + errorMessage }, { status: 500 });
   }
 }
