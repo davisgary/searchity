@@ -16,6 +16,15 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
   useEffect(() => {
     const fetchTrendingSearches = async () => {
       try {
+        const cachedTrends = localStorage.getItem('trendingSearches');
+        const cacheTimestamp = localStorage.getItem('trendsTimestamp');
+        const cacheAge = cacheTimestamp ? Date.now() - parseInt(cacheTimestamp) : Infinity;
+
+        if (cachedTrends && cacheAge < 60 * 60 * 1000) {
+          setTrendingSearches(JSON.parse(cachedTrends));
+          return;
+        }
+
         const response = await fetch('/api/trends', {
           method: 'GET',
           headers: {
@@ -29,6 +38,9 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
 
         const data: { trends: Trend[] } = await response.json();
         setTrendingSearches(data.trends || []);
+
+        localStorage.setItem('trendingSearches', JSON.stringify(data.trends));
+        localStorage.setItem('trendsTimestamp', Date.now().toString());
       } catch (err) {
         console.error('Error fetching trending searches:', err);
       }
@@ -39,15 +51,20 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
 
   useEffect(() => {
     const trendsContainer = trendsContainerRef.current;
-    if (!trendsContainer) return;
+    if (!trendsContainer || !trendingSearches.length) return;
 
     let animationFrameId: number;
     let start: number | null = null;
+    const speed = 20;
 
     const step = (timestamp: number) => {
       if (!start) start = timestamp;
-      const progress = timestamp - start;
-      trendsContainer.scrollLeft = (progress / 50) % trendsContainer.scrollWidth;
+      const elapsed = (timestamp - start) / 1000;
+      const scrollDistance = elapsed * speed;
+      
+      const singleWidth = trendsContainer.scrollWidth / 2;
+      trendsContainer.scrollLeft = scrollDistance % singleWidth;
+
       animationFrameId = requestAnimationFrame(step);
     };
 
@@ -60,6 +77,8 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
     return null;
   }
 
+  const doubledTrends = [...trendingSearches, ...trendingSearches];
+
   return (
     <div className="pt-3 w-full text-left">
       <p className="flex items-center font-medium text-left text-xs tracking-widest text-primary/90 mx-2 pb-1 pl-3 sm:pl-10 md:pl-16 lg:pl-20">
@@ -68,7 +87,7 @@ const Trends: React.FC<TrendsProps> = ({ handleSearch }) => {
       </p>
       <div className="overflow-hidden whitespace-nowrap py-2" ref={trendsContainerRef}>
         <div className="inline-block">
-          {trendingSearches.map((trend, index) => (
+          {doubledTrends.map((trend, index) => (
             <span key={index} className="mx-4">
               <button
                 onClick={() => handleSearch(trend.term)}

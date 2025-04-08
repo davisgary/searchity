@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
           const suggestionsResponse = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
-              { role: "system", content: "Generate follow-up search suggestions based on the query and results. No specific years. Format each suggestion on a new line starting with '- '." },
+              { role: "system", content: "Generate follow-up search suggestions based on the query and results. Do not include specific years (e.g., 2023, 1995) in the suggestions—focus on timeless or general terms instead. Format each suggestion on a new line starting with '- '." },
               { role: "user", content: `Query: "${message}". Results:\n\n${summarizedContent}\n\nSuggest relevant follow-ups.` },
             ],
           });
