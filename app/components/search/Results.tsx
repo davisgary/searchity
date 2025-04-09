@@ -9,6 +9,12 @@ type ResultItem = {
   link: string;
   snippet: string;
   image: string;
+  source?: string;
+  date?: string | null;
+  pagemap?: {
+    cse_image?: { src: string }[];
+    metatags?: { [key: string]: string }[];
+  };
 };
 
 type ResultsProps = {
@@ -111,35 +117,40 @@ const ResultImage: React.FC<{ result: ResultItem }> = ({ result }) => {
     };
   }, [result.image]);
 
+  const source =
+    result.pagemap?.metatags?.[0]?.["og:site_name"] ||
+    new URL(result.link).hostname.replace("www.", "");
+
   return (
     <div className="p-2">
       <div
         className="bg-white rounded-lg overflow-hidden transition-transform transform hover:scale-105"
-        style={{ height: '215px', display: 'flex', flexDirection: 'column' }}
+        style={{ height: "215px", display: "flex", flexDirection: "column" }}
       >
         <a
           href={result.link}
           target="_blank"
           rel="noopener noreferrer"
           className="block h-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-label={`${result.title}: ${result.snippet}`}
+          aria-label={`${result.title}: ${result.snippet} (Source: ${source})`}
           tabIndex={-1}
         >
-          <div style={{ height: '85px', overflow: 'hidden' }}>
+          <div style={{ height: "85px", overflow: "hidden" }}>
             <img
               src={result.image}
               alt={result.title}
-              className={`w-full h-full ${isSmallImage ? 'object-none bg-neutral-100' : 'object-cover object-[center_20%]'}`}
+              className={`w-full h-full ${isSmallImage ? "object-none bg-neutral-100" : "object-cover object-[center_20%]"}`}
               onError={(e) => {
                 e.currentTarget.src = `https://www.google.com/s2/favicons?sz=256&domain=${new URL(result.link).hostname}`;
-                e.currentTarget.classList.add('object-none', 'bg-neutral-100');
+                e.currentTarget.classList.add("object-none", "bg-neutral-100");
               }}
             />
           </div>
-          <div className="bg-white p-2">
-            <p className="text-black font-bold mb-1" style={{ fontSize: '14px', lineHeight: '1.2' }}>
+          <div className="bg-white p-2" style={{ flexGrow: 1 }}>
+            <p className="text-black font-bold mb-1" style={{ fontSize: "14px", lineHeight: "1.2" }}>
               {result.title}
             </p>
+            <p className="text-xs text-gray-600 mb-1">{source}</p>
             <p className="text-xs text-black">{result.snippet}</p>
           </div>
         </a>
