@@ -150,7 +150,7 @@ const ResultImage: React.FC<{ result: ResultItem }> = ({ result }) => {
             <p className="text-black font-bold mb-1" style={{ fontSize: "14px", lineHeight: "1.2" }}>
               {result.title}
             </p>
-            <p className="text-xs text-gray-600 mb-1">{source}</p>
+            <p className="text-xs text-gray-700 mb-1">{source}</p>
             <p className="text-xs text-black">{result.snippet}</p>
           </div>
         </a>

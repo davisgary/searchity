@@ -198,18 +198,18 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
         <div
           key={`${currentSessionId || "temp"}-${index}`}
           id={`search-${index}`}
-          className="mt-4 w-full text-left"
+          className="mt-2 w-full text-left"
           ref={index === displayedSearches.length - 1 ? latestSearchRef : null}
         >
-          <div className="px-2 sm:px-7">
+          <div className="w-full max-w-3xl mx-auto px-3">
+            <p className="mb-3 text-primary/70">
+              Search for "{search.query.replace(/^\d+\.\s*/, "").replace(/"/g, "")}"
+            </p>
             <Summary summary={search.summary} />
           </div>
           {search.results.length > 0 && <Results results={search.results} />}
           {(search.summary || search.results.length > 0) && (
-            <div className="px-2 sm:px-7">
-              <p className="my-4">
-                Search for "{search.query.replace(/^\d+\.\s*/, "").replace(/"/g, "")}"
-              </p>
+            <div className="w-full max-w-3xl mt-4 mx-auto px-3">
               {search.suggestions.length > 0 && (
                 <Suggestions
                   suggestions={search.suggestions}
@@ -222,7 +222,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
         </div>
       ))}
       {isLoading && (
-        <div ref={streamingRef} className="w-full text-left mt-4 px-2 sm:px-7">
+        <div ref={streamingRef} className="w-full max-w-3xl mx-auto px-3 mt-4 text-left">
           {currentSummary && <Summary summary={currentSummary} />}
           <Loading isLoading={isLoading} />
         </div>
