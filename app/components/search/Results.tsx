@@ -31,7 +31,7 @@ const Results: React.FC<ResultsProps> = ({ results }) => {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
+    slidesToShow: 4,
     slidesToScroll: 1,
     centerMode: true,
     centerPadding: '40px',
@@ -53,7 +53,7 @@ const Results: React.FC<ResultsProps> = ({ results }) => {
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 4,
           slidesToScroll: 1,
           centerPadding: '30px',
         },
@@ -61,7 +61,7 @@ const Results: React.FC<ResultsProps> = ({ results }) => {
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 3,
           slidesToScroll: 1,
           centerPadding: '20px',
         },
@@ -92,8 +92,9 @@ const Results: React.FC<ResultsProps> = ({ results }) => {
   }, [filteredResults]);
 
   return (
-    <div className="mt-5 text-left overflow-hidden">
-      <Slider ref={sliderRef} {...settings} aria-label="Search results carousel">
+    <div className="mt-3 text-left overflow-hidden">
+      <p className="w-full max-w-3xl mx-auto px-3 mb-2 text-sm text-primary/70 tracking-wider">Results</p>
+      <Slider ref={sliderRef} {...settings} aria-label="Search results">
         {filteredResults.map((result, index) => (
           <ResultImage key={index} result={result} />
         ))}

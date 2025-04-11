@@ -90,7 +90,7 @@ export default function Account({
       <button
         onClick={handleClick}
         onMouseDown={(e) => e.stopPropagation()}
-        className="relative w-9 h-9 ml-1 focus:outline-none transition-all duration-300 hover:ring-1 hover:ring-muted rounded-full z-10 bg-transparent"
+        className="relative w-8 h-8 ml-1 focus:outline-none transition-all duration-300 hover:ring-1 hover:ring-muted rounded-full z-10 bg-transparent"
       >
         <img
           src={userImage || "/meta.png"}

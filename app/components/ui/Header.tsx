@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 import Link from "next/link";
 import SignIn from "../auth/SignIn";
 import SignUp from "../auth/SignUp";
@@ -85,8 +86,9 @@ export default function Header({ sessions, setSessions, onNewSearch }: HeaderPro
   };
 
   return (
-    <header className="w-full max-w-4xl lg:max-w-none mx-auto flex items-center justify-between border-l border-r lg:border-l-0 lg:border-r-0 border-b border-dashed border-primary/10 px-3 md:px-12 py-4" style={{ height: '64px' }}>
-      <Link href="/">
+    <header className="w-full max-w-4xl lg:max-w-none mx-auto flex items-center justify-between border-l border-r lg:border-l-0 lg:border-r-0 border-b border-primary/10 px-3 md:px-12 py-4" style={{ height: '64px' }}>
+      <Link href="/" className="flex items-center space-x-1">
+        <FaMagnifyingGlass className="w-4 h-4" />
         <span className="text-xl font-semibold tracking-tighter">SearchAI</span>
       </Link>
       <nav className="flex text-sm font-semibold items-center">

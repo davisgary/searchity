@@ -12,8 +12,8 @@ export default function Suggestions({ suggestions, handleSearch, isLoading }: Su
   return (
     <div>
       <div className="flex items-center">
-        <p className="text-lg font-medium">Follow-Up Suggestions</p>
-        <PiMagnifyingGlassPlusBold className="inline w-4 h-4 ml-1 align-middle" />
+        <p className="text-primary/90 tracking-wide">Follow-Up Suggestions</p>
+        <PiMagnifyingGlassPlusBold className="text-primary/80 inline w-4 h-4 ml-1 align-middle" />
       </div>
       <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
         {suggestions.slice(0, 6).map((suggestion, i) => {
@@ -26,10 +26,10 @@ export default function Suggestions({ suggestions, handleSearch, isLoading }: Su
               key={i}
               onClick={() => handleSearch(sanitizedSuggestion)}
               disabled={isLoading}
-              className="w-full flex items-center justify-between rounded-md py-2 px-3 border border-primary/40 hover:scale-105 hover:border-primary/50 transition-all duration-300"
+              className="w-full flex items-center justify-between rounded-md py-2 px-3 text-sm text-primary/90 text-left border border-primary/30 hover:scale-105 hover:border-primary/50 transition-all duration-300"
             >
               <span
-                className="inline-block max-w-full align-middle truncate"
+                className="inline-block align-middle"
                 title={sanitizedSuggestion}
               >
                 {sanitizedSuggestion}

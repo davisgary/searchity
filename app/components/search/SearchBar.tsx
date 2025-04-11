@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { PiMagnifyingGlassBold } from "react-icons/pi";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 
 interface SearchBarProps {
   handleSearch: (query: string) => void;
@@ -145,8 +145,9 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
           className="bg-muted w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3"
           aria-label="Search"
         >
-          <PiMagnifyingGlassBold
-            className={`w-6 h-6 ${isLoading ? "animate-pulse" : ""} ${isInputValid ? "opacity-100" : "opacity-90"}`}
+          <FaMagnifyingGlass
+            className={` ${isLoading ? "animate-pulse" : ""} ${isInputValid ? "opacity-100" : "opacity-90"}`}
+            size={20}
           />
         </button>
       </div>
