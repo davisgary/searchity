@@ -56,7 +56,7 @@ export default function Dropdown({ onSignOut, onDeleteConfirm }: DropdownProps) 
           </button>
         </div>
       </div>
-      <button onClick={handleSignOutClick} className="w-full flex items-center space-x-2 px-5 py-4 border-b border-primary/10 hover:bg-muted">
+      <button onClick={handleSignOutClick} className="w-full flex items-center space-x-2 px-5 py-4 border-b border-primary/10 hover:bg-muted hover:border-muted">
         <PiSignOutBold size={18} />
         <span>Sign Out</span>
       </button>

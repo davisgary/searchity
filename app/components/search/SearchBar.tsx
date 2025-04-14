@@ -142,7 +142,7 @@ export default function SearchBar({ handleSearch, isLoading = false }: SearchBar
         <button
           onClick={onSearch}
           disabled={isLoading || !isInputValid}
-          className="bg-muted w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3"
+          className="bg-secondary w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3"
           aria-label="Search"
         >
           <FaMagnifyingGlass

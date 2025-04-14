@@ -89,7 +89,7 @@ export default function Header({ sessions, setSessions, onNewSearch }: HeaderPro
     <header className="w-full max-w-4xl lg:max-w-none mx-auto flex items-center justify-between border-l border-r lg:border-l-0 lg:border-r-0 border-b border-primary/10 px-3 md:px-12 py-4" style={{ height: '64px' }}>
       <Link href="/" className="flex items-center space-x-1">
         <FaMagnifyingGlass className="w-4 h-4" />
-        <span className="text-xl font-semibold tracking-tighter">SearchAI</span>
+        <span className="text-lg font-semibold tracking-tighter">SearchAI</span>
       </Link>
       <nav className="flex text-sm font-semibold items-center">
         {isLoading ? (

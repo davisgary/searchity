@@ -56,12 +56,12 @@ export default function SignIn({
       <div className="relative group">
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center mx-3 px-4 py-2 font-semibold rounded-full transition-all duration-300 hover:bg-muted hover:scale-105"
+          className="flex items-center mx-3 px-4 py-2 font-semibold tracking-wide bg-secondary rounded-xl transition-all duration-300 hover:bg-muted hover:scale-105"
           aria-label="Open sign in dialog"
         >
           <span>Sign In</span>
         </button>
-        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs bg-muted px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-2rem] whitespace-nowrap">
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-[-2.5rem] text-xs bg-muted px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none group-hover:bottom-[-2rem] whitespace-nowrap">
           Go to Sign In
         </span>
       </div>
@@ -75,7 +75,7 @@ export default function SignIn({
       >
         <div
           ref={modalRef}
-          className={`bg-secondary p-3 rounded-lg shadow-full transform transition-all duration-300 ease-in-out ${
+          className={`bg-main dark:bg-secondary p-3 rounded-lg shadow-full transform transition-all duration-300 ease-in-out ${
             isOpen ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
           }`}
         >
@@ -112,11 +112,11 @@ export default function SignIn({
               </button>
             </div>
             <div className="font-medium text-center">
-              <p className="text-sm text-primary/70 mb-14">
+              <p className="text-sm text-primary/70 mb-24">
                 Don't have an account?{" "}
                 <button
                   onClick={handleSignUpClick}
-                  className="text-primary/90 hover:text-primary transition-all duration-300"
+                  className="text-primary hover:text-primary/80 transition-all duration-300"
                 >
                   Sign Up
                 </button>
