@@ -187,7 +187,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-start flex-grow bg-main border-l border-r border-b border-primary/10 py-2 sm:py-10">
       <h1 className="pb-2 font-semibold tracking-tighter text-3xl sm:text-4xl md:text-5xl">
-        Search the Web with AI
+        Find exactly what you need
       </h1>
       <SearchBar handleSearch={handleSearch} isLoading={isLoading} />
       <div className="w-full overflow-hidden">

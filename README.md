@@ -1,5 +1,5 @@
-<h1>Search AI</h1>
-Search the web with AI
+<h1>Searchity</h1>
+AI-powered search engine with fast answers and real-time results
 
 ## Getting Started
 

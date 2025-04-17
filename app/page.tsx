@@ -91,7 +91,7 @@ function IndexContent() {
         onNewSearch={handleNewSearch}
       />
       <footer className="w-full max-w-4xl mx-auto border-l border-r border-primary/10 py-4 text-xs font-medium">
-        SearchAI can make mistakes. Check your results.
+        Searchity can make mistakes. Check your results.
       </footer>
     </div>
   );

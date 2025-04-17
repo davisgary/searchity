@@ -4,14 +4,14 @@ import { Theme } from "./theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SearchAI",
-  description: "Search the web with AI",
+  title: "Searchity",
+  description: "AI-powered search engine with fast answers and real-time results",
   openGraph: {
     type: "website",
     locale: "en_US",
-    title: "SearchAI",
+    title: "Searchity",
     images: ["/meta.png"],
-    siteName: "SearchAI",
+    siteName: "Searchity",
   },
 };
 
