@@ -14,11 +14,11 @@ const Loading: React.FC<LoadingProps> = ({ isLoading }) => {
     setLoadingMessage('Searching...');
     
     const firstTimeout = setTimeout(() => {
-      setLoadingMessage('Here is the summary...');
+      setLoadingMessage('Here is the result...');
     }, 2000);
 
     const secondTimeout = setTimeout(() => {
-      setLoadingMessage('Getting results...');
+      setLoadingMessage('Getting the sources...');
     }, 4000);
 
     return () => {

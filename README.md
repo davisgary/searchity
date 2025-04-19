@@ -1,5 +1,5 @@
 <h1>Searchity</h1>
-AI-powered search engine with fast answers and real-time results
+Searchity fetches up-to-date information from the web, generates relevant summaries in real-time, and provides suggestions based on the user’s query.
 
 ## Getting Started
 

@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Searchity",
-  description: "AI-powered search engine with fast answers and real-time results",
+  description: "Start your search and discover more with Searchity, your AI-powered search engine for everything you can think of and more.",
   openGraph: {
     type: "website",
     locale: "en_US",

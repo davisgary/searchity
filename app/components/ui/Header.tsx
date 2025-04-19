@@ -29,9 +29,15 @@ interface HeaderProps {
   sessions: Session[];
   setSessions: React.Dispatch<React.SetStateAction<Session[]>>;
   onNewSearch?: () => void;
+  showAuth?: boolean;
 }
 
-export default function Header({ sessions, setSessions, onNewSearch }: HeaderProps) {
+export default function Header({
+  sessions,
+  setSessions,
+  onNewSearch,
+  showAuth = true,
+}: HeaderProps) {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userImage, setUserImage] = useState<string | undefined>(undefined);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
@@ -40,6 +46,11 @@ export default function Header({ sessions, setSessions, onNewSearch }: HeaderPro
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!showAuth) {
+      setIsLoading(false);
+      return;
+    }
+
     async function checkSession() {
       try {
         setIsLoading(true);
@@ -56,8 +67,9 @@ export default function Header({ sessions, setSessions, onNewSearch }: HeaderPro
         setIsLoading(false);
       }
     }
+
     checkSession();
-  }, []);
+  }, [showAuth]);
 
   const handleSignOut = async () => {
     try {
@@ -92,19 +104,19 @@ export default function Header({ sessions, setSessions, onNewSearch }: HeaderPro
         <span className="text-lg font-semibold tracking-tighter">Searchity</span>
       </Link>
       <nav className="flex text-sm font-semibold items-center">
-        {isLoading ? (
-          null
-        ) : (
+        {showAuth && !isLoading && (
           <>
-            {isSignedIn && (
+            {isSignedIn ? (
               <>
                 <NewSearch onNewSearch={onNewSearch} />
-                <SearchesModal
-                  sessions={sessions}
-                  setSessions={setSessions}
-                  onNewSearch={onNewSearch}
-                  className="mx-4"
-                />
+                {sessions && setSessions && (
+                  <SearchesModal
+                    sessions={sessions}
+                    setSessions={setSessions}
+                    onNewSearch={onNewSearch}
+                    className="mx-4"
+                  />
+                )}
                 <Account
                   isSignedIn={isSignedIn}
                   onSignOut={handleSignOut}
@@ -113,23 +125,26 @@ export default function Header({ sessions, setSessions, onNewSearch }: HeaderPro
                   setIsDropdownOpen={setIsDropdownOpen}
                 />
               </>
-            )}
-            {!isSignedIn && (
+            ) : (
               <>
-                <SignIn
-                  isSignedIn={isSignedIn}
-                  isOpen={isSignInModalOpen}
-                  setIsOpen={setIsSignInModalOpen}
-                  openSignUp={openSignUpModal}
-                />
-                <SignUp
-                  isSignedIn={isSignedIn}
-                  onSignOut={handleSignOut}
-                  userImage={userImage}
-                  isOpen={isSignUpModalOpen}
-                  setIsOpen={setIsSignUpModalOpen}
-                  openSignIn={openSignInModal}
-                />
+                {!isSignedIn && (
+                  <>
+                    <SignIn
+                      isSignedIn={isSignedIn}
+                      isOpen={isSignInModalOpen}
+                      setIsOpen={setIsSignInModalOpen}
+                      openSignUp={openSignUpModal}
+                    />
+                    <SignUp
+                      isSignedIn={isSignedIn}
+                      onSignOut={handleSignOut}
+                      userImage={userImage}
+                      isOpen={isSignUpModalOpen}
+                      setIsOpen={setIsSignUpModalOpen}
+                      openSignIn={openSignInModal}
+                    />
+                  </>
+                )}
               </>
             )}
           </>

@@ -91,11 +91,11 @@ export default function SignIn({
               Close
             </span>
           </div>
-          <div className="px-6 sm:px-8 md:px-10">
+          <div className="sm:px-8 md:px-10">
             <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight mb-5">
               Sign in to<br />start searching
             </h2>
-            <div className="flex flex-col gap-4 mb-5 tracking-wide">
+            <div className="flex flex-col gap-4 px-4 mb-5 tracking-wide">
               <button
                 onClick={handleGoogleSignIn}
                 className="flex items-center gap-6 sm:gap-3 px-4 py-3 font-semibold rounded-full hover:bg-muted hover:scale-105 transition duration-300 border border-primary/40"
@@ -123,11 +123,11 @@ export default function SignIn({
               </p>
               <div className="text-xs text-primary/80 mb-2">
                   By signing in, you agree to the{' '}
-                <Link href="/terms" className="font-semibold text-accent hover:underline">
-                  Terms of Service
+                <Link href="/terms-of-use" className="font-semibold text-accent hover:underline">
+                  Terms of Use
                 </Link>{' '}
                   and{' '}
-                <Link href="/privacy" className="font-semibold text-accent hover:underline">
+                <Link href="/privacy-policy" className="font-semibold text-accent hover:underline">
                   Privacy Policy
                 </Link>.
               </div>

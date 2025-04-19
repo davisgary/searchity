@@ -185,9 +185,9 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
   }, [displayedSearches, isLoading]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-start flex-grow bg-main border-l border-r border-b border-primary/10 py-2 sm:py-10">
-      <h1 className="pb-2 font-semibold tracking-tighter text-3xl sm:text-4xl md:text-5xl">
-        Find exactly what you need
+    <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-start flex-grow bg-main border-l border-r border-b border-primary/10 py-3 sm:py-10">
+      <h1 className="sm:pb-2 font-semibold tracking-tighter text-2xl sm:text-4xl md:text-5xl">
+        Start your search. Discover more.
       </h1>
       <SearchBar handleSearch={handleSearch} isLoading={isLoading} />
       <div className="w-full overflow-hidden">
@@ -203,7 +203,7 @@ export default function Searches({ sessionId: initialSessionId, setSessions, sel
         >
           <div className="w-full max-w-3xl mx-auto px-3">
             <p className="mb-3 text-sm text-primary/70 tracking-wider">
-              Summary for "{search.query.replace(/^\d+\.\s*/, "").replace(/"/g, "")}"
+              Search for "{search.query.replace(/^\d+\.\s*/, "").replace(/"/g, "")}"
             </p>
             <Summary summary={search.summary} />
           </div>

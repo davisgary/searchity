@@ -93,7 +93,7 @@ const Results: React.FC<ResultsProps> = ({ results }) => {
 
   return (
     <div className="mt-3 text-left overflow-hidden">
-      <p className="w-full max-w-3xl mx-auto px-3 mb-2 text-sm text-primary/70 tracking-wider">Results</p>
+      <p className="w-full max-w-3xl mx-auto px-3 mb-2 text-sm text-primary/70 tracking-wider">Sources</p>
       <Slider ref={sliderRef} {...settings} aria-label="Search results">
         {filteredResults.map((result, index) => (
           <ResultImage key={index} result={result} />

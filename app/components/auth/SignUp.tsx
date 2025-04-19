@@ -105,11 +105,11 @@ export default function SignUp({
               Close
             </span>
           </div>
-          <div className="px-6 sm:px-8 md:px-10">
+          <div className="sm:px-8 md:px-10">
             <h2 className="text-4xl sm:text-5xl text-main font-semibold tracking-tight mb-5">
               Sign up to<br />start searching
             </h2>
-            <div className="flex flex-col gap-4 mb-5 tracking-wide">
+            <div className="flex flex-col gap-4 px-4 mb-5 tracking-wide">
               <button
                 onClick={handleGoogleSignUp}
                 className="flex items-center gap-6 sm:gap-3 px-4 py-3 text-main font-semibold rounded-full border border-main/40 hover:bg-main/10 hover:scale-105 transition duration-300"
@@ -137,11 +137,11 @@ export default function SignUp({
               </p>
               <div className="text-xs text-main/80 mb-2">
                   By signing in, you agree to the{' '}
-                <Link href="/terms" className="font-semibold text-sky-500 dark:text-sky-700 hover:underline">
-                  Terms of Service
+                <Link href="/terms-of-use" className="font-semibold text-sky-500 dark:text-sky-700 hover:underline">
+                  Terms of Use
                 </Link>{' '}
                   and{' '}
-                <Link href="/privacy" className="font-semibold text-sky-500 dark:text-sky-700 hover:underline">
+                <Link href="/privacy-policy" className="font-semibold text-sky-500 dark:text-sky-700 hover:underline">
                   Privacy Policy
                 </Link>.
               </div>
